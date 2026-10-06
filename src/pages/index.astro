@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 
 import furgoneta from "@/assets/images/furgoneta.jpg";
+import presentacion from "@/assets/presentacion.mp4";
 import gato from "@/assets/images/gato.jpg";
 import perro from "@/assets/images/perro-envios.jpg";
 import CtaBanner from "@/components/CtaBanner.astro";
@@ -163,6 +164,23 @@ const routeCount = routes
         ))
       }
     </ol>
+  </section>
+
+  <section class="pb-16 sm:pb-24" aria-labelledby="video-title">
+    <div class="container-page">
+      <h2 id="video-title" class="section-title text-center">
+        Conoce Kache Envíos
+      </h2>
+      <video
+        class="mx-auto mt-10 aspect-video w-full max-w-4xl rounded-[2rem] bg-ink shadow-card"
+        src={presentacion}
+        controls
+        playsinline
+        preload="metadata"
+        aria-label="Vídeo de presentación de Kache Envíos"
+      >
+      </video>
+    </div>
   </section>
 
   <section class="bg-cream py-16 sm:py-24" aria-labelledby="rutas-title">

@@ -10,7 +10,11 @@ export type PublicRoute = {
   base: string
   /** Unique intermediate localities in travel order. */
   stops: string[]
+  /** Every stop with known coordinates, in travel order (base included, repeated if the route returns). */
+  points: RoutePoint[]
 }
+
+export type RoutePoint = { name: string; lat: number; lng: number }
 
 type PublicRouteRow = {
   id: string
@@ -19,6 +23,15 @@ type PublicRouteRow = {
   template_name: string
   template_color: string
   localities: string[] | null
+  stops?: { locality: string; latitude: number | null; longitude: number | null }[] | null
+}
+
+function mapPoints(stops: PublicRouteRow['stops']): RoutePoint[] {
+  return (stops ?? []).flatMap((stop) =>
+    typeof stop.latitude === 'number' && typeof stop.longitude === 'number'
+      ? [{ name: stop.locality.trim(), lat: stop.latitude, lng: stop.longitude }]
+      : [],
+  )
 }
 
 const FALLBACK_COLOR = '#fde2dd'
@@ -36,6 +49,7 @@ export function mapRoute(row: PublicRouteRow): PublicRoute {
     color: HEX_COLOR.test(row.template_color) ? row.template_color : FALLBACK_COLOR,
     base,
     stops,
+    points: mapPoints(row.stops),
   }
 }
 
@@ -43,7 +57,7 @@ export function mapRoute(row: PublicRouteRow): PublicRoute {
 export async function fetchPublicRoutes(): Promise<PublicRoute[]> {
   const rows = await rpc<PublicRouteRow[]>(
     'list_public_transport_routes',
-    'select=id,service_date,route_direction,template_name,template_color,localities',
+    'select=id,service_date,route_direction,template_name,template_color,localities,stops',
   )
   return rows.map(mapRoute)
 }
@@ -56,6 +70,18 @@ export async function fetchPublicRoutesSafe(): Promise<PublicRoute[] | null> {
     console.warn('[kache-landing] No se han podido cargar las rutas:', error)
     return null
   }
+}
+
+/** A map needs at least two stops with coordinates. Older cached routes may lack `points`. */
+export function routePoints(route: PublicRoute): RoutePoint[] {
+  const points = route.points ?? []
+  return points.length >= 2 ? points : []
+}
+
+/** Google Maps directions through every stop, in order (path format accepts many more stops than `waypoints=`). */
+export function googleMapsRouteUrl(points: RoutePoint[]) {
+  const path = points.map((point) => `${point.lat},${point.lng}`).join('/')
+  return `https://www.google.com/maps/dir/${path}`
 }
 
 export function upcomingRoutes(routes: PublicRoute[], today: string) {
