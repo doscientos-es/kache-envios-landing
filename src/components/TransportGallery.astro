@@ -1,0 +1,133 @@
+---
+import { Image } from "astro:assets";
+
+import box1 from "@/assets/images/box-1.jpeg";
+import box2 from "@/assets/images/box-2.jpeg";
+import box3 from "@/assets/images/box-3.jpeg";
+import box4 from "@/assets/images/box-4.jpeg";
+import box5 from "@/assets/images/box-5.jpeg";
+import box6 from "@/assets/images/box-6.jpeg";
+import box7 from "@/assets/images/box-7.jpeg";
+import furgoneta from "@/assets/images/furgoneta.jpg";
+import { vanFeatures } from "@/config/content";
+
+import Icon from "./Icon.astro";
+
+const slides = [
+  { src: box7, alt: "Box de la furgoneta con puerta de rejilla y bebedero" },
+  { src: box2, alt: "Interior de un box con suelo antideslizante" },
+  { src: box3, alt: "Box amplio y luminoso de la furgoneta" },
+  { src: box1, alt: "Compartimentos de los boxes vistos desde la puerta" },
+  { src: box4, alt: "Boxes de distintos tamaños dentro de la furgoneta" },
+  { src: box5, alt: "Interior de un box con aire acondicionado en el techo" },
+  { src: box6, alt: "Box de gran tamaño para perros grandes" },
+  { src: furgoneta, alt: "Furgoneta negra adaptada de Kache Envíos" },
+];
+---
+
+<section
+  class="container-page py-16 sm:py-24"
+  aria-labelledby="transporte-title"
+>
+  <h2 id="transporte-title" class="section-title text-center">
+    Nuestro transporte
+  </h2>
+
+  <div class="mx-auto mt-8 max-w-3xl rounded-[2rem] bg-cream p-7 text-center shadow-card sm:p-10">
+    <p class="text-xl font-extrabold sm:text-2xl">
+      Les mostramos la que será nuestra compañera en todas nuestras rutas y la
+      de vuestras mascotas
+    </p>
+    <p class="mt-4 text-ink-soft">
+      Cada box dispone de suministro de depósito de agua con bomba automática,
+      extracción de aire forzado y automático, para su óptima temperatura
+      durante todo el trayecto. Aire acondicionado en el techo, para que todos
+      los compartimentos de nuestros pasajeros vayan aclimatados durante el
+      viaje. Aire acondicionado auxiliar externo, además de abundante luz dentro
+      del habitáculo.
+    </p>
+    <p class="mt-4 font-bold">
+      Contamos con 3 tipos de box; desde los más peques, hasta los XL para los
+      más grandotes.
+    </p>
+  </div>
+
+  <div class="relative mt-10" data-gallery>
+    <ul
+      class="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-1 pb-4 [scrollbar-width:none] motion-reduce:scroll-auto [&::-webkit-scrollbar]:hidden"
+      data-gallery-track
+      tabindex="0"
+      aria-label="Galería de fotos de la furgoneta"
+    >
+      {
+        slides.map((slide, index) => (
+          <li class="w-[70%] shrink-0 snap-start sm:w-[34%] lg:w-[23.5%]">
+            <Image
+              src={slide.src}
+              alt={slide.alt}
+              widths={[320, 480, 640]}
+              sizes="(min-width: 1024px) 270px, (min-width: 640px) 34vw, 70vw"
+              class="aspect-[3/4] w-full rounded-3xl object-cover shadow-card"
+              loading={index < 2 ? "eager" : "lazy"}
+            />
+          </li>
+        ))
+      }
+    </ul>
+    <button
+      type="button"
+      data-gallery-prev
+      aria-label="Fotos anteriores"
+      class="absolute top-1/2 left-1 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white text-ink shadow-card transition-opacity hover:bg-brand-50 disabled:opacity-0"
+    >
+      <Icon name="arrowRight" class="size-5 rotate-180" />
+    </button>
+    <button
+      type="button"
+      data-gallery-next
+      aria-label="Fotos siguientes"
+      class="absolute top-1/2 right-1 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white text-ink shadow-card transition-opacity hover:bg-brand-50 disabled:opacity-0"
+    >
+      <Icon name="arrowRight" class="size-5" />
+    </button>
+  </div>
+
+  <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {
+      vanFeatures.map((feature) => (
+        <li class="flex gap-3">
+          <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <Icon name={feature.icon} class="size-5" />
+          </span>
+          <span>
+            <strong class="block">{feature.title}</strong>
+            <span class="text-sm text-ink-soft">{feature.text}</span>
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-gallery]");
+  const track = root?.querySelector<HTMLElement>("[data-gallery-track]");
+  const prev = root?.querySelector<HTMLButtonElement>("[data-gallery-prev]");
+  const next = root?.querySelector<HTMLButtonElement>("[data-gallery-next]");
+
+  if (track && prev && next) {
+    const update = () => {
+      prev.disabled = track.scrollLeft <= 4;
+      next.disabled =
+        track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    };
+    const step = (direction: 1 | -1) =>
+      track.scrollBy({ left: direction * track.clientWidth * 0.8 });
+
+    prev.addEventListener("click", () => step(-1));
+    next.addEventListener("click", () => step(1));
+    track.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  }
+</script>

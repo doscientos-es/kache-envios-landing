@@ -1,9 +1,6 @@
 ---
 import { Image } from "astro:assets";
 
-import box1 from "@/assets/images/box-1.jpeg";
-import box3 from "@/assets/images/box-3.jpeg";
-import box5 from "@/assets/images/box-5.jpeg";
 import furgoneta from "@/assets/images/furgoneta.jpg";
 import gato from "@/assets/images/gato.jpg";
 import perro from "@/assets/images/perro-envios.jpg";
@@ -13,7 +10,8 @@ import Icon from "@/components/Icon.astro";
 import ImportantInfo from "@/components/ImportantInfo.astro";
 import LiveBoxes from "@/components/LiveBoxes.astro";
 import LiveRoutes from "@/components/LiveRoutes.astro";
-import { highlights, steps, testimonials, vanFeatures } from "@/config/content";
+import TransportGallery from "@/components/TransportGallery.astro";
+import { highlights, steps, testimonials } from "@/config/content";
 import { appLinks, site } from "@/config/site";
 import Base from "@/layouts/Base.astro";
 import { fetchBoxCatalogSafe } from "@/lib/catalog";
@@ -185,53 +183,7 @@ const routeCount = routes
     </div>
   </section>
 
-  <section
-    class="container-page grid items-center gap-12 py-16 sm:py-24 lg:grid-cols-2"
-    aria-labelledby="transporte-title"
-  >
-    <div class="grid grid-cols-3 gap-3">
-      {
-        [box1, box3, box5].map((image, index) => (
-          <Image
-            src={image}
-            alt={`Interior de los boxes de la furgoneta, vista ${index + 1}`}
-            widths={[240, 480]}
-            sizes="(min-width: 1024px) 180px, 30vw"
-            class:list={[
-              "aspect-[3/4] w-full rounded-3xl object-cover shadow-card",
-              index === 1 && "translate-y-6",
-            ]}
-          />
-        ))
-      }
-    </div>
-    <div>
-      <h2 id="transporte-title" class="section-title">
-        Una furgoneta pensada para ellos
-      </h2>
-      <p class="mt-4 text-ink-soft">
-        La compañera de todas nuestras rutas. Boxes desde los más peques hasta
-        XL para los más grandotes.
-      </p>
-      <ul class="mt-8 grid gap-5 sm:grid-cols-2">
-        {
-          vanFeatures.map((feature) => (
-            <li class="flex gap-3">
-              <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
-                <Icon name={feature.icon} class="size-5" />
-              </span>
-              <span>
-                <>
-                  <strong class="block">{feature.title}</strong>
-                  <span class="text-sm text-ink-soft">{feature.text}</span>
-                </>
-              </span>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+  <TransportGallery />
 
   <section class="bg-cream py-16 sm:py-24" aria-labelledby="tarifas-title">
     <div class="container-page">
