@@ -5,7 +5,14 @@
 import { appLinks, whatsappLink } from '@/config/site'
 
 import { boxAudience, type BoxItem } from './catalog'
-import { dateParts, daysBetween, escapeHtml, formatEuros, relativeDayLabel } from './format'
+import {
+  dateParts,
+  daysBetween,
+  escapeHtml,
+  formatEuros,
+  relativeDayLabel,
+  routeDaysLabel,
+} from './format'
 import { iconSvg } from './icons'
 import { googleMapsRouteLinks, normalizeSearch, routePoints, type PublicRoute } from './routes'
 
@@ -36,7 +43,9 @@ export function renderRouteCard(route: PublicRoute, { today, compact = false }: 
   const visibleStops = compact ? route.stops.slice(0, COMPACT_STOPS) : route.stops
   const hiddenStops = route.stops.length - visibleStops.length
   const search = normalizeSearch([route.name, route.base, ...route.stops].join(' '))
-  const message = `Hola, quiero información sobre la ruta ${route.name} del ${date.long}.`
+  const multiDay = route.endDate > route.serviceDate
+  const daysLabel = multiDay ? routeDaysLabel(route.serviceDate, route.endDate) : date.weekday
+  const message = `Hola, quiero información sobre la ruta ${route.name} del ${multiDay ? daysLabel : date.long}.`
 
   const stops = visibleStops.map((stop) => `<li class="chip">${escapeHtml(stop)}</li>`).join('')
   const more = hiddenStops > 0 ? `<li class="chip bg-cream">+${hiddenStops} más</li>` : ''
@@ -50,7 +59,7 @@ export function renderRouteCard(route: PublicRoute, { today, compact = false }: 
         <span class="text-xs font-bold tracking-wide uppercase">${escapeHtml(date.month)}</span>
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-xs font-semibold text-muted first-letter:uppercase">${escapeHtml(date.weekday)} · <span class="text-brand-700">${relativeDayLabel(days)}</span></p>
+        <p class="text-xs font-semibold text-muted first-letter:uppercase">${escapeHtml(daysLabel)} · <span class="text-brand-700">${relativeDayLabel(days)}</span></p>
         <h3 class="mt-1 truncate text-xl font-extrabold tracking-tight">Ruta ${escapeHtml(route.name)}</h3>
         <p class="mt-1 flex items-center gap-1.5 text-sm text-ink-soft">${iconSvg('mapPin', 'size-4 shrink-0 text-brand')}Salida y regreso: ${escapeHtml(route.base || 'Córdoba')}${route.reverse ? ' · sentido inverso' : ''}</p>
       </div>

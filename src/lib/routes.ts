@@ -3,6 +3,8 @@ import { rpc } from './supabase'
 export type PublicRoute = {
   id: string
   serviceDate: string
+  /** Day the last stop is reached; later than `serviceDate` for multi-day routes. */
+  endDate: string
   reverse: boolean
   name: string
   color: string
@@ -19,6 +21,7 @@ export type RoutePoint = { name: string; lat: number; lng: number }
 type PublicRouteRow = {
   id: string
   service_date: string
+  end_date?: string | null
   route_direction: string
   template_name: string
   template_color: string
@@ -44,6 +47,7 @@ export function mapRoute(row: PublicRouteRow): PublicRoute {
   return {
     id: row.id,
     serviceDate: row.service_date,
+    endDate: row.end_date ?? row.service_date,
     reverse: row.route_direction === 'inversa',
     name: row.template_name.trim() || 'Ruta programada',
     color: HEX_COLOR.test(row.template_color) ? row.template_color : FALLBACK_COLOR,
@@ -57,7 +61,7 @@ export function mapRoute(row: PublicRouteRow): PublicRoute {
 export async function fetchPublicRoutes(): Promise<PublicRoute[]> {
   const rows = await rpc<PublicRouteRow[]>(
     'list_public_transport_routes',
-    'select=id,service_date,route_direction,template_name,template_color,localities,stops',
+    'select=id,service_date,end_date,route_direction,template_name,template_color,localities,stops',
   )
   return rows.map(mapRoute)
 }

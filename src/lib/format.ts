@@ -33,6 +33,27 @@ export function dateParts(isoDate: string) {
   }
 }
 
+const monthLongFormat = dayParts({ month: 'long' })
+
+/** "1, 2 y 3 de octubre" or "30 y 31 de octubre y 1 de noviembre"; one day if `end` is not later. */
+export function routeDaysLabel(start: string, end?: string) {
+  const total = end && end > start ? Math.min(14, daysBetween(start, end) + 1) : 1
+  const groups: { month: string; days: number[] }[] = []
+  for (let offset = 0; offset < total; offset += 1) {
+    const date = new Date(serviceDay(start).getTime() + offset * 86_400_000)
+    const month = monthLongFormat.format(date)
+    const group = groups.at(-1)
+    if (group?.month === month) group.days.push(date.getUTCDate())
+    else groups.push({ month, days: [date.getUTCDate()] })
+  }
+  return groups
+    .map(({ month, days }) => {
+      const list = days.length > 1 ? `${days.slice(0, -1).join(', ')} y ${days.at(-1)}` : `${days[0]}`
+      return `${list} de ${month}`
+    })
+    .join(' y ')
+}
+
 /** Today's service day in Spain as `YYYY-MM-DD`. */
 export function todayInSpain(now = new Date()) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(now)
