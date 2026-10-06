@@ -1,0 +1,59 @@
+---
+import { signature, todayInSpain } from "@/lib/format";
+import { renderRouteList, renderRoutesNotice } from "@/lib/render";
+import { upcomingRoutes, type PublicRoute } from "@/lib/routes";
+
+type Props = {
+  /** `null` when the build could not reach Supabase: the browser fills it in. */
+  routes: PublicRoute[] | null;
+  limit?: number;
+  compact?: boolean;
+  class?: string;
+};
+
+const { routes, limit, compact = false, class: className = "" } = Astro.props;
+const today = todayInSpain();
+const visible = routes ? upcomingRoutes(routes, today).slice(0, limit) : [];
+const listHtml = renderRouteList(visible, { today, compact });
+const noticeHtml = routes && !visible.length ? renderRoutesNotice("empty") : "";
+---
+
+<div
+  class={className}
+  data-live-routes
+  data-limit={limit}
+  data-compact={String(compact)}
+  aria-busy={routes ? undefined : "true"}
+  aria-live="polite"
+>
+  <ul
+    class="grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+    data-routes-list
+    data-signature={routes ? signature(listHtml) : undefined}
+    set:html={listHtml}
+  />
+  <div data-routes-notice set:html={noticeHtml} />
+  {
+    !routes && (
+      <div
+        class="grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+        data-routes-skeleton
+        aria-hidden="true"
+      >
+        <div class="skeleton h-72" />
+        <div class="skeleton h-72" />
+        <div class="skeleton hidden h-72 lg:block" />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  [data-live-routes]:not([aria-busy]) [data-routes-skeleton] {
+    display: none;
+  }
+</style>
+
+<script>
+  import "@/scripts/live-data";
+</script>

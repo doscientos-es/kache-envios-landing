@@ -1,0 +1,274 @@
+---
+import { Image } from "astro:assets";
+
+import box1 from "@/assets/images/box-1.jpeg";
+import box3 from "@/assets/images/box-3.jpeg";
+import box5 from "@/assets/images/box-5.jpeg";
+import furgoneta from "@/assets/images/furgoneta.jpg";
+import gato from "@/assets/images/gato.jpg";
+import perro from "@/assets/images/perro-envios.jpg";
+import CtaBanner from "@/components/CtaBanner.astro";
+import Faq from "@/components/Faq.astro";
+import Icon from "@/components/Icon.astro";
+import ImportantInfo from "@/components/ImportantInfo.astro";
+import LiveBoxes from "@/components/LiveBoxes.astro";
+import LiveRoutes from "@/components/LiveRoutes.astro";
+import { highlights, steps, testimonials, vanFeatures } from "@/config/content";
+import { appLinks, site } from "@/config/site";
+import Base from "@/layouts/Base.astro";
+import { fetchBoxCatalogSafe } from "@/lib/catalog";
+import { todayInSpain } from "@/lib/format";
+import { fetchPublicRoutesSafe, upcomingRoutes } from "@/lib/routes";
+
+const [routes, boxes] = await Promise.all([
+  fetchPublicRoutesSafe(),
+  fetchBoxCatalogSafe(),
+]);
+const routeCount = routes
+  ? upcomingRoutes(routes, todayInSpain()).length
+  : null;
+---
+
+<Base>
+  <section class="relative overflow-hidden bg-cream">
+    <div
+      class="pointer-events-none absolute -top-32 -left-32 size-[28rem] rounded-full bg-brand/20 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+    <div
+      class="container-page relative grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-[1.1fr_1fr]"
+    >
+      <div>
+        <h1
+          class="text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
+        >
+          Tu mascota viaja <span class="text-brand-600">segura y feliz</span> por
+          toda España
+        </h1>
+        <p class="mt-5 max-w-xl text-lg text-ink-soft">
+          Rutas mensuales en furgoneta climatizada, con agua, ventilación y el
+          cariño que merecen. Reserva online y sigue cada viaje desde tu panel.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a
+            href={appLinks.requestTransport()}
+            class="btn btn-primary h-13 px-7 text-base"
+          >
+            Reservar transporte <Icon name="arrowRight" class="size-4" />
+          </a>
+          <a href="/rutas" class="btn btn-outline h-13 px-6 text-base">
+            <Icon name="calendar" class="size-4" /> Ver próximas rutas
+            <span
+              class="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-700 tabular-nums"
+              data-route-count
+              hidden={routeCount === null}>{routeCount ?? ""}</span
+            >
+          </a>
+        </div>
+        <p class="mt-6 flex items-center gap-2 text-sm text-ink-soft">
+          <Icon name="phone" class="size-4 text-brand" />
+          ¿Prefieres hablar? <a
+            class="font-bold text-ink underline-offset-4 hover:underline"
+            href={site.phone.href}>{site.phone.display}</a
+          > con {site.phone.contactName}
+        </p>
+      </div>
+      <div
+        class="relative mx-auto grid w-full max-w-md grid-cols-2 gap-4 lg:max-w-none"
+      >
+        <Image
+          src={perro}
+          alt="Perro preparado para viajar con Kache Envíos"
+          widths={[320, 600]}
+          sizes="(min-width: 1024px) 280px, 45vw"
+          class="col-span-1 row-span-2 h-full w-full rounded-[2rem] object-cover shadow-card"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <Image
+          src={gato}
+          alt="Gato tranquilo antes del viaje"
+          widths={[320, 600]}
+          sizes="(min-width: 1024px) 280px, 45vw"
+          class="aspect-square w-full rounded-[2rem] object-cover shadow-card"
+          loading="eager"
+        />
+        <Image
+          src={furgoneta}
+          alt="Furgoneta adaptada de Kache Envíos"
+          widths={[320, 600]}
+          sizes="(min-width: 1024px) 280px, 45vw"
+          class="aspect-square w-full rounded-[2rem] object-cover shadow-card"
+          loading="eager"
+        />
+        <div
+          class="absolute -bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold whitespace-nowrap shadow-card"
+        >
+          <Icon name="shield" class="size-4 text-brand" /> Puerta a puerta opcional
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-line bg-white">
+    <ul class="container-page grid gap-6 py-8 sm:grid-cols-3">
+      {
+        highlights.map((item) => (
+          <li class="flex items-center gap-4">
+            <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-50 text-brand-700">
+              <Icon name={item.icon} class="size-6" />
+            </span>
+            <span>
+              <>
+                <strong class="block">{item.title}</strong>
+                <span class="text-sm text-muted">{item.text}</span>
+              </>
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section
+    id="servicio"
+    class="container-page py-16 sm:py-24"
+    aria-labelledby="servicio-title"
+  >
+    <div class="max-w-3xl">
+      <h2 id="servicio-title" class="section-title">
+        Especialistas en el transporte de mascotas
+      </h2>
+      <p class="mt-4 text-lg text-ink-soft">
+        Su bienestar es lo más importante. Nuestro equipo se encarga de cada
+        detalle, desde la recogida hasta la entrega, con vehículos adaptados y
+        control de temperatura y ventilación durante todo el trayecto.
+      </p>
+    </div>
+    <ol class="mt-12 grid gap-6 md:grid-cols-3">
+      {
+        steps.map((step, index) => (
+          <li class="card relative p-7">
+            <span
+              class="absolute top-6 right-6 text-5xl font-extrabold text-line tabular-nums"
+              aria-hidden="true"
+            >
+              {index + 1}
+            </span>
+            <span class="grid size-12 place-items-center rounded-2xl bg-brand text-white">
+              <Icon name={step.icon} class="size-6" />
+            </span>
+            <h3 class="mt-5 text-xl font-extrabold">{step.title}</h3>
+            <p class="mt-2 text-ink-soft">{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="bg-cream py-16 sm:py-24" aria-labelledby="rutas-title">
+    <div class="container-page">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 id="rutas-title" class="section-title">Próximas rutas</h2>
+          <p class="mt-3 max-w-xl text-ink-soft">
+            Salidas desde {site.location}. Elige la tuya y reserva plaza
+            directamente.
+          </p>
+        </div>
+        <a href="/rutas" class="btn btn-outline"
+          >Ver todas las rutas <Icon name="arrowRight" class="size-4" /></a
+        >
+      </div>
+      <LiveRoutes routes={routes} limit={3} compact class="mt-10" />
+    </div>
+  </section>
+
+  <section
+    class="container-page grid items-center gap-12 py-16 sm:py-24 lg:grid-cols-2"
+    aria-labelledby="transporte-title"
+  >
+    <div class="grid grid-cols-3 gap-3">
+      {
+        [box1, box3, box5].map((image, index) => (
+          <Image
+            src={image}
+            alt={`Interior de los boxes de la furgoneta, vista ${index + 1}`}
+            widths={[240, 480]}
+            sizes="(min-width: 1024px) 180px, 30vw"
+            class:list={[
+              "aspect-[3/4] w-full rounded-3xl object-cover shadow-card",
+              index === 1 && "translate-y-6",
+            ]}
+          />
+        ))
+      }
+    </div>
+    <div>
+      <h2 id="transporte-title" class="section-title">
+        Una furgoneta pensada para ellos
+      </h2>
+      <p class="mt-4 text-ink-soft">
+        La compañera de todas nuestras rutas. Boxes desde los más peques hasta
+        XL para los más grandotes.
+      </p>
+      <ul class="mt-8 grid gap-5 sm:grid-cols-2">
+        {
+          vanFeatures.map((feature) => (
+            <li class="flex gap-3">
+              <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+                <Icon name={feature.icon} class="size-5" />
+              </span>
+              <span>
+                <>
+                  <strong class="block">{feature.title}</strong>
+                  <span class="text-sm text-ink-soft">{feature.text}</span>
+                </>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-cream py-16 sm:py-24" aria-labelledby="tarifas-title">
+    <div class="container-page">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 id="tarifas-title" class="section-title">Tarifas por box</h2>
+          <p class="mt-3 max-w-xl text-ink-soft">
+            Precio por mascota y trayecto en nuestros puntos de encuentro.
+          </p>
+        </div>
+        <a href="/tarifas" class="btn btn-outline"
+          >Detalles y condiciones <Icon name="arrowRight" class="size-4" /></a
+        >
+      </div>
+      <LiveBoxes boxes={boxes} class="mt-10" />
+    </div>
+  </section>
+
+  <section
+    class="container-page py-16 sm:py-24"
+    aria-labelledby="opiniones-title"
+  >
+    <h2 id="opiniones-title" class="section-title">Lo que dicen de nosotros</h2>
+    <ul class="mt-10 grid gap-6 md:grid-cols-3">
+      {
+        testimonials.map((item) => (
+          <li class="card flex flex-col gap-4 p-7">
+            <Icon name="heart" class="size-6 text-brand" />
+            <blockquote class="flex-1 text-ink-soft">“{item.text}”</blockquote>
+            <p class="font-bold">{item.name}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <ImportantInfo />
+  <Faq />
+  <CtaBanner />
+</Base>

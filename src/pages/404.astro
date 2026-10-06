@@ -1,0 +1,20 @@
+---
+import Icon from '@/components/Icon.astro'
+import Base from '@/layouts/Base.astro'
+---
+
+<Base title="Página no encontrada" noindex>
+  <section class="container-page grid place-items-center py-24 text-center sm:py-32">
+    <span class="grid size-16 place-items-center rounded-full bg-brand-50 text-brand-700">
+      <Icon name="paw" class="size-8" />
+    </span>
+    <h1 class="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl">Esta página se ha escapado</h1>
+    <p class="mt-4 max-w-md text-lg text-ink-soft">
+      No encontramos lo que buscas. Vuelve al inicio o consulta las próximas rutas.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="/" class="btn btn-primary">Volver al inicio</a>
+      <a href="/rutas" class="btn btn-outline">Ver próximas rutas</a>
+    </div>
+  </section>
+</Base>

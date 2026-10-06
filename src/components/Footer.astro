@@ -1,0 +1,60 @@
+---
+import { appLinks, navigation, site } from '@/config/site'
+
+import Icon from './Icon.astro'
+
+const year = new Date().getFullYear()
+---
+
+<footer class="bg-ink text-white/80">
+  <div class="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
+    <div class="grid content-start gap-4">
+      <img src="/logo-light.svg" alt={site.name} width="62" height="50" class="h-14 w-auto self-start justify-self-start" />
+      <p class="max-w-sm text-sm">
+        Transporte de mascotas seguro, cómodo y con cariño por toda España desde {site.location}.
+      </p>
+    </div>
+
+    <nav aria-label="Pie de página">
+      <h2 class="text-sm font-bold text-white">Navegación</h2>
+      <ul class="mt-4 grid gap-2 text-sm">
+        {
+          navigation.map((item) => (
+            <li>
+              <a class="hover:text-white" href={item.href}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+        <li><a class="hover:text-white" href={appLinks.clientPortal}>Mi panel de cliente</a></li>
+        <li>
+          <a class="hover:text-white" href={appLinks.requestTransport()}>Solicitar transporte</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="text-sm font-bold text-white">Contacto</h2>
+      <ul class="mt-4 grid gap-3 text-sm">
+        <li class="flex items-center gap-2">
+          <Icon name="phone" class="size-4 text-brand" />
+          <a class="hover:text-white" href={site.phone.href}>
+            {site.phone.display} · {site.phone.contactName}
+          </a>
+        </li>
+        <li class="flex items-center gap-2">
+          <Icon name="mail" class="size-4 shrink-0 text-brand" />
+          <a class="break-all hover:text-white" href={`mailto:${site.email}`}>{site.email}</a>
+        </li>
+        <li class="flex items-center gap-2">
+          <Icon name="mapPin" class="size-4 text-brand" />
+          {site.location}
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-white/10">
+    <p class="container-page py-5 text-xs text-white/60">© {year} {site.name}. Todos los derechos reservados.</p>
+  </div>
+</footer>

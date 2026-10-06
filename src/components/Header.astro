@@ -1,0 +1,145 @@
+---
+import { appLinks, navigation, site } from "@/config/site";
+
+import Icon from "./Icon.astro";
+
+const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const isCurrent = (href: string) => !href.includes("#") && href === path;
+---
+
+<header
+  class="sticky top-0 z-40 border-b border-transparent bg-white/85 backdrop-blur-md transition-colors data-[scrolled]:border-line"
+  data-site-header
+>
+  <a
+    href="#contenido"
+    class="sr-only z-50 rounded-full bg-ink px-4 py-2 text-sm font-bold text-white focus:not-sr-only focus:absolute focus:top-3 focus:left-3"
+  >
+    Saltar al contenido
+  </a>
+  <div class="container-page flex h-18 items-center justify-between gap-4">
+    <a
+      href="/"
+      class="flex shrink-0 items-center gap-3"
+      aria-label={`${site.name}, inicio`}
+    >
+      <img
+        src="/logo-dark.svg"
+        alt=""
+        width="62"
+        height="50"
+        class="h-12 w-auto rounded-lg"
+      />
+      <span class="hidden text-sm leading-tight font-extrabold sm:block">
+        Kache Envíos<span class="block font-medium text-muted"
+          >Transporte de mascotas</span
+        >
+      </span>
+    </a>
+
+    <nav aria-label="Principal" class="hidden lg:block">
+      <ul class="flex items-center gap-1">
+        {
+          navigation.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isCurrent(item.href) ? "page" : undefined}
+                class="rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-cream hover:text-ink aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-700"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <a
+        href={appLinks.clientPortal}
+        class="btn btn-outline hidden sm:inline-flex"
+      >
+        <Icon name="user" class="size-4" /> Mi panel
+      </a>
+      <a
+        href={appLinks.requestTransport()}
+        class="btn btn-primary hidden md:inline-flex"
+      >
+        Reservar transporte
+      </a>
+      <button
+        type="button"
+        class="btn btn-outline size-11 px-0 lg:hidden"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        aria-label="Abrir menú"
+        data-menu-toggle
+      >
+        <Icon name="menu" class="size-5" />
+      </button>
+    </div>
+  </div>
+
+  <div
+    id="mobile-menu"
+    class="border-t border-line bg-white lg:hidden"
+    hidden
+    data-menu
+  >
+    <nav aria-label="Móvil" class="container-page grid gap-1 py-4">
+      {
+        navigation.map((item) => (
+          <a
+            href={item.href}
+            aria-current={isCurrent(item.href) ? "page" : undefined}
+            class="rounded-xl px-3 py-3 text-base font-semibold hover:bg-cream aria-[current=page]:text-brand-700"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <div class="mt-3 grid gap-2 sm:grid-cols-2">
+        <a href={appLinks.requestTransport()} class="btn btn-primary"
+          >Reservar transporte</a
+        >
+        <a href={appLinks.clientPortal} class="btn btn-outline">
+          <Icon name="user" class="size-4" /> Mi panel de cliente
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-site-header]");
+  const toggle =
+    document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const menu = document.querySelector<HTMLElement>("[data-menu]");
+
+  const setOpen = (open: boolean) => {
+    if (!toggle || !menu) return;
+    menu.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+  };
+
+  toggle?.addEventListener("click", () => setOpen(Boolean(menu?.hidden)));
+  menu?.addEventListener("click", (event) => {
+    if ((event.target as HTMLElement).closest("a")) setOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && menu && !menu.hidden) {
+      setOpen(false);
+      toggle?.focus();
+    }
+  });
+  window
+    .matchMedia("(min-width: 64rem)")
+    .addEventListener("change", () => setOpen(false));
+
+  const onScroll = () =>
+    header?.toggleAttribute("data-scrolled", window.scrollY > 8);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+</script>

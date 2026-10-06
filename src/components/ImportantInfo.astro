@@ -1,0 +1,27 @@
+---
+import { importantInfo } from "@/config/content";
+
+import Icon from "./Icon.astro";
+---
+
+<section class="bg-cream py-16 sm:py-20" aria-labelledby="info-title">
+  <div class="container-page grid gap-10 lg:grid-cols-[1fr_1.6fr]">
+    <div>
+      <h2 id="info-title" class="section-title">Información importante</h2>
+      <p class="mt-4 text-ink-soft">
+        Unas normas sencillas para que cada viaje sea seguro y tranquilo para
+        todos.
+      </p>
+    </div>
+    <ul class="grid gap-3 sm:grid-cols-2">
+      {
+        importantInfo.map((item) => (
+          <li class="flex gap-3 rounded-2xl border border-line bg-white p-4 text-sm text-ink-soft">
+            <Icon name="info" class="mt-0.5 size-5 shrink-0 text-brand" />
+            {item}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

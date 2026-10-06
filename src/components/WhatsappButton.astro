@@ -1,0 +1,15 @@
+---
+import { whatsappLink } from '@/config/site'
+
+import Icon from './Icon.astro'
+---
+
+<a
+  href={whatsappLink('Hola, quiero información sobre el transporte de mi mascota.')}
+  target="_blank"
+  rel="noopener"
+  class="fixed right-4 bottom-4 z-30 grid size-14 place-items-center rounded-full bg-[#1f8f4e] text-white shadow-lg transition-transform hover:scale-105 focus-visible:scale-105 sm:right-6 sm:bottom-6"
+  aria-label="Consúltanos por WhatsApp"
+>
+  <Icon name="whatsapp" class="size-7" />
+</a>

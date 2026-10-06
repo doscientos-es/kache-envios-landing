@@ -1,0 +1,87 @@
+---
+import { Image } from "astro:assets";
+
+import box2 from "@/assets/images/box-2.jpeg";
+import box4 from "@/assets/images/box-4.jpeg";
+import CtaBanner from "@/components/CtaBanner.astro";
+import Faq from "@/components/Faq.astro";
+import Icon from "@/components/Icon.astro";
+import ImportantInfo from "@/components/ImportantInfo.astro";
+import LiveBoxes from "@/components/LiveBoxes.astro";
+import PageHero from "@/components/PageHero.astro";
+import { pricingNotes } from "@/config/content";
+import { appLinks, whatsappLink } from "@/config/site";
+import Base from "@/layouts/Base.astro";
+import { fetchBoxCatalogSafe } from "@/lib/catalog";
+
+const boxes = await fetchBoxCatalogSafe();
+---
+
+<Base
+  title="Tarifas"
+  description="Tarifas de transporte de mascotas por box de Kache Envíos. Precio por mascota y trayecto en nuestros puntos de encuentro."
+>
+  <PageHero
+    title="Tarifas por box"
+    text="Precio por mascota y trayecto en nuestros puntos de encuentro. El box se asigna según el tamaño y el peso de tu mascota."
+  />
+
+  <section class="container-page py-14 sm:py-20" aria-label="Tarifas actuales">
+    <LiveBoxes boxes={boxes} />
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href={appLinks.requestTransport()} class="btn btn-primary">
+        Solicitar transporte <Icon name="arrowRight" class="size-4" />
+      </a>
+      <a
+        href={whatsappLink(
+          "Hola, quiero un presupuesto para el transporte de mi mascota.",
+        )}
+        target="_blank"
+        rel="noopener"
+        class="btn btn-outline"
+      >
+        <Icon name="whatsapp" class="size-4" /> Pedir presupuesto
+      </a>
+    </div>
+  </section>
+
+  <section class="bg-cream py-16 sm:py-20" aria-labelledby="condiciones-title">
+    <div class="container-page grid items-center gap-12 lg:grid-cols-2">
+      <div>
+        <h2 id="condiciones-title" class="section-title">
+          Condiciones de precio
+        </h2>
+        <ul class="mt-8 grid gap-4">
+          {
+            pricingNotes.map((note) => (
+              <li class="flex gap-3 rounded-2xl border border-line bg-white p-4 text-ink-soft">
+                <Icon name="info" class="mt-0.5 size-5 shrink-0 text-brand" />
+                {note}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <Image
+          src={box2}
+          alt="Boxes individuales dentro de la furgoneta"
+          widths={[320, 640]}
+          sizes="(min-width: 1024px) 280px, 45vw"
+          class="aspect-[3/4] w-full rounded-3xl object-cover shadow-card"
+        />
+        <Image
+          src={box4}
+          alt="Box amplio para perros grandes"
+          widths={[320, 640]}
+          sizes="(min-width: 1024px) 280px, 45vw"
+          class="aspect-[3/4] w-full translate-y-8 rounded-3xl object-cover shadow-card"
+        />
+      </div>
+    </div>
+  </section>
+
+  <ImportantInfo />
+  <Faq />
+  <CtaBanner />
+</Base>

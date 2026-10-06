@@ -1,0 +1,93 @@
+---
+import CtaBanner from "@/components/CtaBanner.astro";
+import Icon from "@/components/Icon.astro";
+import ImportantInfo from "@/components/ImportantInfo.astro";
+import LiveRoutes from "@/components/LiveRoutes.astro";
+import PageHero from "@/components/PageHero.astro";
+import { appLinks, site } from "@/config/site";
+import Base from "@/layouts/Base.astro";
+import { todayInSpain } from "@/lib/format";
+import {
+  fetchPublicRoutesSafe,
+  routeLocalities,
+  upcomingRoutes,
+} from "@/lib/routes";
+
+const routes = await fetchPublicRoutesSafe();
+const localities = routes
+  ? routeLocalities(upcomingRoutes(routes, todayInSpain()))
+  : [];
+---
+
+<Base
+  title="Próximas rutas"
+  description="Calendario actualizado de rutas de transporte de mascotas de Kache Envíos. Busca tu localidad y reserva plaza online."
+>
+  <PageHero
+    title="Próximas rutas"
+    text={`Salidas desde ${site.location} hacia el sur, centro y norte peninsular y la costa mediterránea. Los horarios y puntos exactos se confirman al cerrar cada ruta.`}
+  >
+    <div class="mt-8 max-w-xl">
+      <label for="route-search" class="text-sm font-bold"
+        >¿Por dónde pasa? Busca tu localidad</label
+      >
+      <div class="relative mt-2">
+        <Icon
+          name="search"
+          class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted"
+        />
+        <input
+          id="route-search"
+          type="search"
+          inputmode="search"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Ej.: Madrid, Valencia, Gijón…"
+          list="route-localities"
+          class="h-13 w-full rounded-full border border-line bg-white pr-4 pl-12 text-base shadow-card outline-none placeholder:text-muted focus-visible:border-brand focus-visible:ring-4 focus-visible:ring-brand/20"
+          data-route-search
+        />
+        <datalist id="route-localities">
+          {localities.map((name) => <option value={name} />)}
+        </datalist>
+      </div>
+      <p
+        class="mt-2 min-h-5 text-sm text-ink-soft"
+        role="status"
+        data-search-status
+      >
+      </p>
+    </div>
+  </PageHero>
+
+  <section class="container-page py-14 sm:py-20" aria-label="Listado de rutas">
+    <LiveRoutes routes={routes} />
+    <div
+      class="card mt-2 flex flex-col items-center gap-3 px-6 py-12 text-center"
+      hidden
+      data-search-empty
+    >
+      <span
+        class="grid size-12 place-items-center rounded-full bg-brand-50 text-brand-700"
+      >
+        <Icon name="mapPin" class="size-6" />
+      </span>
+      <h2 class="text-lg font-extrabold">Ninguna ruta pasa todavía por ahí</h2>
+      <p class="max-w-md text-sm text-ink-soft">
+        Hacemos recogidas y entregas fuera de ruta con servicio puerta a puerta.
+        Pídenos presupuesto sin compromiso.
+      </p>
+      <div class="mt-2 flex flex-wrap justify-center gap-2">
+        <a class="btn btn-primary" href={appLinks.requestTransport()}
+          >Solicitar transporte</a
+        >
+        <button type="button" class="btn btn-outline" data-search-value=""
+          >Ver todas las rutas</button
+        >
+      </div>
+    </div>
+  </section>
+
+  <ImportantInfo />
+  <CtaBanner />
+</Base>

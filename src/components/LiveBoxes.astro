@@ -1,0 +1,28 @@
+---
+import type { BoxItem } from "@/lib/catalog";
+import { signature } from "@/lib/format";
+import { renderBoxList } from "@/lib/render";
+
+type Props = { boxes: BoxItem[] | null; class?: string };
+
+const { boxes, class: className = "" } = Astro.props;
+const listHtml = boxes ? renderBoxList(boxes) : "";
+---
+
+<ul
+  class:list={["grid gap-6 pt-3 sm:grid-cols-2 lg:grid-cols-4", className]}
+  data-live-boxes
+  data-signature={boxes ? signature(listHtml) : undefined}
+  set:html={listHtml}
+/>
+{
+  !boxes && (
+    <p class="text-sm text-muted" data-boxes-fallback>
+      Cargando tarifas actualizadas…
+    </p>
+  )
+}
+
+<script>
+  import "@/scripts/live-data";
+</script>

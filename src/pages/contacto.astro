@@ -1,0 +1,155 @@
+---
+import { Image } from "astro:assets";
+
+import rudol from "@/assets/images/rudol.jpg";
+import CtaBanner from "@/components/CtaBanner.astro";
+import Faq from "@/components/Faq.astro";
+import Icon from "@/components/Icon.astro";
+import PageHero from "@/components/PageHero.astro";
+import type { IconName } from "@/lib/icons";
+import { appLinks, site, whatsappLink } from "@/config/site";
+import Base from "@/layouts/Base.astro";
+
+const channels: {
+  icon: IconName;
+  title: string;
+  text: string;
+  href: string;
+  label: string;
+  external?: boolean;
+}[] = [
+  {
+    icon: "phone",
+    title: "Teléfono",
+    text: `Habla con ${site.phone.contactName} y resuelve tus dudas al momento.`,
+    href: site.phone.href,
+    label: site.phone.display,
+  },
+  {
+    icon: "whatsapp",
+    title: "WhatsApp",
+    text: "Escríbenos cuando quieras y te respondemos lo antes posible.",
+    href: whatsappLink(
+      "Hola, quiero información sobre el transporte de mi mascota.",
+    ),
+    label: "Abrir WhatsApp",
+    external: true,
+  },
+  {
+    icon: "mail",
+    title: "Correo electrónico",
+    text: "Para presupuestos especiales o documentación.",
+    href: `mailto:${site.email}`,
+    label: site.email,
+  },
+];
+
+const shortcuts: {
+  icon: IconName;
+  title: string;
+  text: string;
+  href: string;
+}[] = [
+  {
+    icon: "file",
+    title: "Solicitar transporte",
+    text: "Rellena los datos de tu mascota y del viaje online.",
+    href: appLinks.requestTransport(),
+  },
+  {
+    icon: "user",
+    title: "Mi panel de cliente",
+    text: "Consulta tus solicitudes, transportes y mascotas.",
+    href: appLinks.clientPortal,
+  },
+  {
+    icon: "calendar",
+    title: "Próximas rutas",
+    text: "Busca tu localidad en el calendario actualizado.",
+    href: "/rutas",
+  },
+];
+---
+
+<Base
+  title="Contacto"
+  description="Contacta con Kache Envíos por teléfono, WhatsApp o correo electrónico para el transporte de tu mascota."
+>
+  <PageHero
+    title="Contacto"
+    text={`Cuéntanos qué necesitas. Atendemos desde ${site.location} para toda España.`}
+  />
+
+  <section
+    class="container-page py-14 sm:py-20"
+    aria-label="Canales de contacto"
+  >
+    <ul class="grid gap-6 md:grid-cols-3">
+      {
+        channels.map((channel) => (
+          <li class="card flex flex-col gap-4 p-7">
+            <span class="grid size-12 place-items-center rounded-2xl bg-brand text-white">
+              <Icon name={channel.icon} class="size-6" />
+            </span>
+            <div class="flex-1">
+              <h2 class="text-xl font-extrabold">{channel.title}</h2>
+              <p class="mt-2 text-ink-soft">{channel.text}</p>
+            </div>
+            <a
+              href={channel.href}
+              class="font-bold break-all text-brand-700 underline-offset-4 hover:underline"
+              target={channel.external ? "_blank" : undefined}
+              rel={channel.external ? "noopener" : undefined}
+            >
+              {channel.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="bg-cream py-16 sm:py-20" aria-labelledby="accesos-title">
+    <div
+      class="container-page grid items-center gap-12 lg:grid-cols-[1fr_1.3fr]"
+    >
+      <Image
+        src={rudol}
+        alt="Mascota feliz tras viajar con Kache Envíos"
+        widths={[400, 800]}
+        sizes="(min-width: 1024px) 420px, 90vw"
+        class="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-card"
+      />
+      <div>
+        <h2 id="accesos-title" class="section-title">Hazlo tú mismo online</h2>
+        <ul class="mt-8 grid gap-3">
+          {
+            shortcuts.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="group flex items-center gap-4 rounded-2xl border border-line bg-white p-4 transition-shadow hover:shadow-card focus-visible:shadow-card"
+                >
+                  <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+                    <Icon name={item.icon} class="size-5" />
+                  </span>
+                  <span class="flex-1">
+                    <strong class="block">{item.title}</strong>
+                    <span class="text-sm text-ink-soft">{item.text}</span>
+                  </span>
+                  <Icon
+                    name="arrowRight"
+                    class="size-5 text-muted transition-transform group-hover:translate-x-1"
+                  />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <Faq />
+  <CtaBanner />
+</Base>
