@@ -16,6 +16,14 @@ export const site = {
     contactName: 'Stella',
   },
   whatsapp: 'https://wa.me/34658604933',
+  social: [
+    {
+      name: 'Facebook',
+      href: 'https://www.facebook.com/share/jfrgfeTAdZGnhx5i/',
+      icon: 'facebook',
+    },
+    { name: 'Instagram', href: 'https://www.instagram.com/kacheenvios', icon: 'instagram' },
+  ],
 } as const
 
 /** Paths of the client app (../interno). Keep aligned with `AUTH_PATHS` there. */

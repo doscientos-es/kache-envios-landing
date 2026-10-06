@@ -1,17 +1,27 @@
 ---
-import { appLinks, navigation, site } from '@/config/site'
+import { appLinks, navigation, site } from "@/config/site";
 
-import Icon from './Icon.astro'
+import Icon from "./Icon.astro";
 
-const year = new Date().getFullYear()
+const year = new Date().getFullYear();
 ---
 
 <footer class="bg-ink text-white/80">
-  <div class="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
+  <div
+    class="container-page grid gap-10 py-14 md:grid-cols-[1fr_auto_auto] md:gap-x-16"
+  >
     <div class="grid content-start gap-4">
-      <img src="/logo-light.svg" alt={site.name} width="62" height="50" class="h-14 w-auto self-start justify-self-start" />
+      <img
+        src="/logo-light.svg"
+        alt={site.name}
+        width="62"
+        height="50"
+        class="h-14 w-auto self-start justify-self-start"
+      />
       <p class="max-w-sm text-sm">
-        Transporte de mascotas seguro, cómodo y con cariño por toda España desde {site.location}.
+        Transporte de mascotas seguro, cómodo y con cariño por toda España desde {
+          site.location
+        }.
       </p>
     </div>
 
@@ -27,9 +37,14 @@ const year = new Date().getFullYear()
             </li>
           ))
         }
-        <li><a class="hover:text-white" href={appLinks.clientPortal}>Mi panel de cliente</a></li>
         <li>
-          <a class="hover:text-white" href={appLinks.requestTransport()}>Solicitar transporte</a>
+          <a class="hover:text-white" href={appLinks.clientPortal}
+            >Mi panel de cliente</a>
+        </li>
+        <li>
+          <a class="hover:text-white" href={appLinks.requestTransport()}
+            >Solicitar transporte</a
+          >
         </li>
       </ul>
     </nav>
@@ -38,23 +53,46 @@ const year = new Date().getFullYear()
       <h2 class="text-sm font-bold text-white">Contacto</h2>
       <ul class="mt-4 grid gap-3 text-sm">
         <li class="flex items-center gap-2">
-          <Icon name="phone" class="size-4 text-brand" />
+          <Icon name="phone" class="size-4 shrink-0 text-brand" />
           <a class="hover:text-white" href={site.phone.href}>
             {site.phone.display} · {site.phone.contactName}
           </a>
         </li>
         <li class="flex items-center gap-2">
           <Icon name="mail" class="size-4 shrink-0 text-brand" />
-          <a class="break-all hover:text-white" href={`mailto:${site.email}`}>{site.email}</a>
+          <a
+            class="min-w-0 break-words hover:text-white"
+            href={`mailto:${site.email}`}>{site.email}</a
+          >
         </li>
         <li class="flex items-center gap-2">
-          <Icon name="mapPin" class="size-4 text-brand" />
+          <Icon name="mapPin" class="size-4 shrink-0 text-brand" />
           {site.location}
         </li>
+      </ul>
+      <ul class="mt-5 flex gap-3" aria-label="Redes sociales">
+        {
+          site.social.map((network) => (
+            <li>
+              <a
+                href={network.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${network.name} de ${site.name}`}
+                class="grid size-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-brand-600"
+              >
+                <Icon name={network.icon} class="size-5" />
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </div>
   </div>
   <div class="border-t border-white/10">
-    <p class="container-page py-5 text-xs text-white/60">© {year} {site.name}. Todos los derechos reservados.</p>
+    <p class="container-page py-5 text-xs text-white/60">
+      © {year}
+      {site.name}. Todos los derechos reservados.
+    </p>
   </div>
 </footer>
