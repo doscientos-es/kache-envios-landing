@@ -7,7 +7,7 @@ import { appLinks, whatsappLink } from '@/config/site'
 import { boxAudience, type BoxItem } from './catalog'
 import { dateParts, daysBetween, escapeHtml, formatEuros, relativeDayLabel } from './format'
 import { iconSvg } from './icons'
-import { googleMapsRouteUrl, normalizeSearch, routePoints, type PublicRoute } from './routes'
+import { googleMapsRouteLinks, normalizeSearch, routePoints, type PublicRoute } from './routes'
 
 const COMPACT_STOPS = 6
 
@@ -20,7 +20,12 @@ function renderRouteMap(route: PublicRoute) {
   const label = escapeHtml(route.name)
   return `<div class="flex flex-wrap items-center gap-x-4 gap-y-2" data-route-map-box>
       <button type="button" class="inline-flex items-center gap-1.5 text-sm font-bold text-brand-700 hover:underline" data-route-map-toggle aria-expanded="false" aria-label="Ver el recorrido de la ruta ${label} en el mapa">${iconSvg('route', 'size-4')}<span data-route-map-label>Ver recorrido en el mapa</span></button>
-      <a class="inline-flex items-center gap-1.5 text-sm font-bold text-ink-soft hover:text-ink hover:underline" href="${escapeHtml(googleMapsRouteUrl(points))}" target="_blank" rel="noopener" aria-label="Abrir el recorrido de la ruta ${label} en Google Maps (se abre en una pestaña nueva)">${iconSvg('mapPin', 'size-4')}Abrir en Google Maps</a>
+      ${googleMapsRouteLinks(points)
+        .map(
+          (link) =>
+            `<a class="inline-flex items-center gap-1.5 text-sm font-bold text-ink-soft hover:text-ink hover:underline" href="${escapeHtml(link.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(link.label)}: ruta ${label} (se abre en una pestaña nueva)">${iconSvg('mapPin', 'size-4')}${escapeHtml(link.label)}</a>`,
+        )
+        .join('\n      ')}
       <div class="route-map h-72 w-full overflow-hidden rounded-2xl bg-cream ring-1 ring-ink/10" hidden data-route-map data-points="${escapeHtml(JSON.stringify(points))}" role="region" aria-label="Mapa del recorrido de la ruta ${label}"></div>
     </div>`
 }

@@ -78,10 +78,41 @@ export function routePoints(route: PublicRoute): RoutePoint[] {
   return points.length >= 2 ? points : []
 }
 
-/** Google Maps directions through every stop, in order (path format accepts many more stops than `waypoints=`). */
-export function googleMapsRouteUrl(points: RoutePoint[]) {
-  const path = points.map((point) => `${point.lat},${point.lng}`).join('/')
-  return `https://www.google.com/maps/dir/${path}`
+/** Google Maps URLs allow origin + destination + 9 waypoints. */
+const MAPS_MAX_POINTS_PER_LINK = 11
+
+function mapsLegUrl(points: RoutePoint[]) {
+  const coords = (point: RoutePoint) => `${point.lat},${point.lng}`
+  const params = new URLSearchParams({
+    api: '1',
+    origin: coords(points[0]),
+    destination: coords(points.at(-1)!),
+    travelmode: 'driving',
+  })
+  const waypoints = points.slice(1, -1).map(coords)
+  if (waypoints.length) params.set('waypoints', waypoints.join('|'))
+  return `https://www.google.com/maps/dir/?${params}`
+}
+
+/**
+ * Official Google Maps directions links covering every stop in order. Long routes are split into
+ * consecutive legs (each leg starts where the previous one ended) because Maps caps the stops.
+ */
+export function googleMapsRouteLinks(points: RoutePoint[]) {
+  // Consecutive duplicates (same coordinates) add nothing and confuse Maps.
+  const clean = points.filter(
+    (point, i) => i === 0 || point.lat !== points[i - 1].lat || point.lng !== points[i - 1].lng,
+  )
+  if (clean.length < 2) return []
+  const legs: RoutePoint[][] = []
+  for (let start = 0; start < clean.length - 1; start += MAPS_MAX_POINTS_PER_LINK - 1) {
+    legs.push(clean.slice(start, start + MAPS_MAX_POINTS_PER_LINK))
+  }
+  return legs.map((leg, i) => ({
+    label:
+      legs.length === 1 ? 'Abrir en Google Maps' : `Google Maps · tramo ${i + 1}/${legs.length}`,
+    url: mapsLegUrl(leg),
+  }))
 }
 
 export function upcomingRoutes(routes: PublicRoute[], today: string) {
