@@ -88,7 +88,7 @@ export const importantInfo = [
 
 export const pricingNotes = [
   'Si viaja más de un cachorro en el mismo box, o necesitas otro origen o destino, el precio varía según el número de mascotas y los kilómetros.',
-  'Aves, hurones, exóticos o mascotas de más de 40 kg: contáctanos para darte precio.',
+  'Aves, hurones, exóticos o mascotas que no encajen en ninguno de los box: contáctanos para darte precio.',
   'El servicio puerta a puerta tiene un coste adicional según distancia y tiempo.',
 ]
 

@@ -113,8 +113,10 @@ export function googleMapsRouteLinks(points: RoutePoint[]) {
     legs.push(clean.slice(start, start + MAPS_MAX_POINTS_PER_LINK))
   }
   return legs.map((leg, i) => ({
-    label:
-      legs.length === 1 ? 'Abrir en Google Maps' : `Google Maps · tramo ${i + 1}/${legs.length}`,
+    label: `Tramo ${i + 1}`,
+    /** Where the leg starts and ends, so each link says what it covers. */
+    from: leg[0].name,
+    to: leg.at(-1)!.name,
     url: mapsLegUrl(leg),
   }))
 }

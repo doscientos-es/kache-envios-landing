@@ -5,9 +5,10 @@
  */
 import type { RoutePoint } from '@/lib/routes'
 
-const TILES = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+// Free OpenStreetMap tiles: no API key (CARTO's basemaps now show an "API KEY REQUIRED" watermark).
+const TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 const ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'
+  '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
 const LINE_COLOR = '#dc5545'
 
 type Leaflet = typeof import('leaflet')
@@ -45,7 +46,7 @@ function uniqueStops(points: RoutePoint[]) {
 
 function drawRoute(L: Leaflet, panel: HTMLElement, points: RoutePoint[]) {
   const map = L.map(panel, { scrollWheelZoom: false, zoomControl: true, attributionControl: true })
-  L.tileLayer(TILES, { attribution: ATTRIBUTION, maxZoom: 18, subdomains: 'abcd' }).addTo(map)
+  L.tileLayer(TILES, { attribution: ATTRIBUTION, maxZoom: 19 }).addTo(map)
 
   const latLngs = points.map((point): [number, number] => [point.lat, point.lng])
   // White casing under the coloured line keeps it readable on any map background.
@@ -81,7 +82,7 @@ async function openMap(box: HTMLElement) {
   const open = panel.hidden
   panel.hidden = !open
   toggle.setAttribute('aria-expanded', String(open))
-  if (label) label.textContent = open ? 'Ocultar mapa' : 'Ver recorrido en el mapa'
+  if (label) label.textContent = open ? 'Ocultar mapa' : 'Ver mapa'
   if (!open || panel.dataset.ready) return
 
   panel.dataset.ready = 'true'

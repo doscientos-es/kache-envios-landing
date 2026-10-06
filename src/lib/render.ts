@@ -25,14 +25,31 @@ function renderRouteMap(route: PublicRoute) {
   const points = routePoints(route)
   if (!points.length) return ''
   const label = escapeHtml(route.name)
-  return `<div class="flex flex-wrap items-center gap-x-4 gap-y-2" data-route-map-box>
-      <button type="button" class="inline-flex items-center gap-1.5 text-sm font-bold text-brand-700 hover:underline" data-route-map-toggle aria-expanded="false" aria-label="Ver el recorrido de la ruta ${label} en el mapa">${iconSvg('route', 'size-4')}<span data-route-map-label>Ver recorrido en el mapa</span></button>
-      ${googleMapsRouteLinks(points)
-        .map(
-          (link) =>
-            `<a class="inline-flex items-center gap-1.5 text-sm font-bold text-ink-soft hover:text-ink hover:underline" href="${escapeHtml(link.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(link.label)}: ruta ${label} (se abre en una pestaña nueva)">${iconSvg('mapPin', 'size-4')}${escapeHtml(link.label)}</a>`,
-        )
-        .join('\n      ')}
+  const buttonClass =
+    'inline-flex items-center gap-1.5 rounded-full bg-cream px-3.5 py-2 text-sm font-bold text-ink ring-1 ring-ink/10 transition hover:bg-brand-50 hover:text-brand-700'
+  const links = googleMapsRouteLinks(points)
+  const mapsLabel = `Abrir la ruta ${label} en Google Maps (se abre en una pestaña nueva)`
+  const mapsControl =
+    links.length === 1
+      ? `<a class="${buttonClass}" href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" aria-label="${mapsLabel}">${iconSvg('mapPin', 'size-4')}Abrir en Google Maps</a>`
+      : links.length > 1
+        ? `<details class="relative">
+        <summary class="${buttonClass} cursor-pointer list-none">${iconSvg('mapPin', 'size-4')}Abrir en Google Maps</summary>
+        <ul class="mt-2 grid gap-1 rounded-2xl bg-white p-2 text-sm shadow-lg ring-1 ring-ink/10">
+          ${links
+            .map(
+              (link) =>
+                `<li><a class="block rounded-xl px-3 py-2 hover:bg-brand-50" href="${escapeHtml(link.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(link.label)} de la ruta ${label}: ${escapeHtml(link.from)} a ${escapeHtml(link.to)} (se abre en una pestaña nueva)"><span class="font-bold">${escapeHtml(link.label)}</span> <span class="text-muted">${escapeHtml(link.from)} → ${escapeHtml(link.to)}</span></a></li>`,
+            )
+            .join('')}
+        </ul>
+      </details>`
+        : ''
+  return `<div class="flex flex-col gap-3" data-route-map-box>
+      <div class="flex flex-wrap items-start gap-2">
+        <button type="button" class="${buttonClass}" data-route-map-toggle aria-expanded="false" aria-label="Ver el recorrido de la ruta ${label} en el mapa">${iconSvg('route', 'size-4')}<span data-route-map-label>Ver mapa</span></button>
+        ${mapsControl}
+      </div>
       <div class="route-map h-72 w-full overflow-hidden rounded-2xl bg-cream ring-1 ring-ink/10" hidden data-route-map data-points="${escapeHtml(JSON.stringify(points))}" role="region" aria-label="Mapa del recorrido de la ruta ${label}"></div>
     </div>`
 }

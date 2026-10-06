@@ -37,7 +37,8 @@ export function mapBox(row: BoxRow): BoxItem {
       .split('·')
       .map((part) => part.trim())
       .filter(Boolean),
-    maxWeightKg: row.next_box_from_kg,
+    // With a large tariff the weight is where that tariff starts, already stated in `dimensions`.
+    maxWeightKg: row.large_amount_cents ? null : row.next_box_from_kg,
   }
 }
 
