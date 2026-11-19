@@ -2,6 +2,9 @@
  * HTML renderers shared by the static build and the in-browser refresh, so live data
  * always looks identical to the prerendered markup.
  */
+import dogWalker from '@/assets/images/dog-walker.jpg'
+import cat from '@/assets/images/gato.jpg'
+import dog from '@/assets/images/perro-envios.jpg'
 import { appLinks, whatsappLink } from '@/config/site'
 
 import { boxAudience, type BoxItem } from './catalog'
@@ -18,7 +21,13 @@ import { googleMapsRouteLinks, normalizeSearch, routePoints, type PublicRoute } 
 
 const COMPACT_STOPS = 6
 
-export type RouteCardOptions = { today: string; compact?: boolean }
+export type RouteCardOptions = {
+  today: string
+  compact?: boolean
+  appearance?: 'default' | 'classic'
+}
+
+const routePhotos = [cat, dog, dogWalker]
 
 /** Toggle + lazy Leaflet panel (see `scripts/route-maps.ts`) and a direct Google Maps link. */
 function renderRouteMap(route: PublicRoute) {
@@ -51,10 +60,15 @@ function renderRouteMap(route: PublicRoute) {
         ${mapsControl}
       </div>
       <div class="route-map h-72 w-full overflow-hidden rounded-2xl bg-cream ring-1 ring-ink/10" hidden data-route-map data-points="${escapeHtml(JSON.stringify(points))}" role="region" aria-label="Mapa del recorrido de la ruta ${label}"></div>
+      <p class="text-xs text-muted">El mapa une las paradas de forma orientativa; no muestra el trazado por carretera.</p>
     </div>`
 }
 
-export function renderRouteCard(route: PublicRoute, { today, compact = false }: RouteCardOptions) {
+export function renderRouteCard(
+  route: PublicRoute,
+  { today, compact = false, appearance = 'default' }: RouteCardOptions,
+  photoIndex = 0,
+) {
   const date = dateParts(route.serviceDate)
   const days = daysBetween(today, route.serviceDate)
   const visibleStops = compact ? route.stops.slice(0, COMPACT_STOPS) : route.stops
@@ -66,6 +80,42 @@ export function renderRouteCard(route: PublicRoute, { today, compact = false }: 
 
   const stops = visibleStops.map((stop) => `<li class="chip">${escapeHtml(stop)}</li>`).join('')
   const more = hiddenStops > 0 ? `<li class="chip bg-cream">+${hiddenStops} más</li>` : ''
+  const map = renderRouteMap(route)
+  const bookingUrl = escapeHtml(appLinks.requestTransport(route.id))
+  const contactUrl = escapeHtml(whatsappLink(message))
+  const itinerary = route.itinerary ?? [route.base, ...route.stops].filter(Boolean)
+  const departure = route.base
+    ? `${itinerary.length > 1 && itinerary.at(-1) === route.base ? 'Salida y regreso' : 'Salida'}: ${escapeHtml(route.base)}`
+    : 'Punto de salida pendiente de confirmar'
+
+  if (appearance === 'classic') {
+    const photo = routePhotos[photoIndex % routePhotos.length]
+    const itineraryItems = (compact ? itinerary.slice(0, COMPACT_STOPS + 1) : itinerary)
+      .map(
+        (stop, index) =>
+          `<li><span class="classic-route-stop-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${escapeHtml(stop)}</li>`,
+      )
+      .join('')
+    const hiddenItineraryStops = Math.max(0, itinerary.length - (COMPACT_STOPS + 1))
+    return `<article class="classic-route" data-route-card data-search="${escapeHtml(search)}">
+      <img class="classic-route-photo" src="${escapeHtml(photo.src)}" alt="" width="${photo.width}" height="${photo.height}" loading="lazy" />
+      <div class="classic-route-body">
+        <h3 class="classic-route-title">Ruta ${escapeHtml(routeDaysLabel(route.serviceDate, route.endDate))}</h3>
+        <p class="classic-route-name">${escapeHtml(route.name)}${route.reverse ? ' · sentido inverso' : ''}</p>
+        <div class="classic-route-poster">
+          <p class="classic-route-poster-heading">Kache Envíos<br />Transporte de mascotas</p>
+          <ol class="classic-route-stops" aria-label="Paradas de la ruta">${itineraryItems}${compact && hiddenItineraryStops > 0 ? `<li>Y ${hiddenItineraryStops} paradas más</li>` : ''}</ol>
+          <p class="classic-route-base">${departure}</p>
+        </div>
+        <div class="classic-route-map">${map}</div>
+        <p class="classic-route-price">Consulte precios según mascota</p>
+        <footer class="classic-route-actions">
+          <a class="btn btn-primary" href="${bookingUrl}">Reservar plaza</a>
+          <a class="classic-route-consult" href="${contactUrl}" target="_blank" rel="noopener" aria-label="Consultar la ruta ${escapeHtml(route.name)} por WhatsApp">Contactar</a>
+        </footer>
+      </div>
+    </article>`
+  }
 
   return `<article class="card group relative flex h-full flex-col overflow-hidden" data-route-card data-search="${escapeHtml(search)}" style="--route:${route.color}">
   <div class="h-2 bg-(--route)" aria-hidden="true"></div>
@@ -78,21 +128,21 @@ export function renderRouteCard(route: PublicRoute, { today, compact = false }: 
       <div class="min-w-0 flex-1">
         <p class="text-xs font-semibold text-muted first-letter:uppercase">${escapeHtml(daysLabel)} · <span class="text-brand-700">${relativeDayLabel(days)}</span></p>
         <h3 class="mt-1 truncate text-xl font-extrabold tracking-tight">Ruta ${escapeHtml(route.name)}</h3>
-        <p class="mt-1 flex items-center gap-1.5 text-sm text-ink-soft">${iconSvg('mapPin', 'size-4 shrink-0 text-brand')}Salida y regreso: ${escapeHtml(route.base || 'Córdoba')}${route.reverse ? ' · sentido inverso' : ''}</p>
+        <p class="mt-1 flex items-center gap-1.5 text-sm text-ink-soft">${iconSvg('mapPin', 'size-4 shrink-0 text-brand')}${departure}${route.reverse ? ' · sentido inverso' : ''}</p>
       </div>
     </header>
     <ol class="flex flex-wrap gap-1.5" aria-label="Paradas de la ruta">${stops}${more}</ol>
-    ${renderRouteMap(route)}
+    ${map}
     <footer class="mt-auto flex flex-wrap gap-2 pt-1">
-      <a class="btn btn-primary flex-1" href="${escapeHtml(appLinks.requestTransport(route.id))}">Reservar plaza ${iconSvg('arrowRight', 'size-4')}</a>
-      <a class="btn btn-outline" href="${escapeHtml(whatsappLink(message))}" target="_blank" rel="noopener" aria-label="Consultar la ruta ${escapeHtml(route.name)} por WhatsApp">${iconSvg('whatsapp', 'size-4')}<span class="sm:hidden lg:inline">Consultar</span></a>
+      <a class="btn btn-primary flex-1" href="${bookingUrl}">Reservar plaza ${iconSvg('arrowRight', 'size-4')}</a>
+      <a class="btn btn-outline" href="${contactUrl}" target="_blank" rel="noopener" aria-label="Consultar la ruta ${escapeHtml(route.name)} por WhatsApp">${iconSvg('whatsapp', 'size-4')}<span class="sm:hidden lg:inline">Consultar</span></a>
     </footer>
   </div>
 </article>`
 }
 
 export function renderRouteList(routes: PublicRoute[], options: RouteCardOptions) {
-  return routes.map((route) => `<li>${renderRouteCard(route, options)}</li>`).join('')
+  return routes.map((route, index) => `<li>${renderRouteCard(route, options, index)}</li>`).join('')
 }
 
 export function renderRoutesNotice(kind: 'empty' | 'error') {

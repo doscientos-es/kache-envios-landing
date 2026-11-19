@@ -1,244 +1,331 @@
 ---
 import { Image } from "astro:assets";
 
-import furgoneta from "@/assets/images/furgoneta.jpg";
+import bulldog from "@/assets/images/bulldog.png";
+import contactDog from "@/assets/images/perro-para-envio.jpg";
+import emblem from "@/assets/images/kache-emblem.png";
+import hero from "@/assets/images/hero-mascotas.jpg";
+import laura from "@/assets/images/laura-max.jpg";
+import mati from "@/assets/images/mati-torres.jpg";
 import presentacion from "@/assets/presentacion.mp4";
-import gato from "@/assets/images/gato.jpg";
-import perro from "@/assets/images/perro-envios.jpg";
-import CtaBanner from "@/components/CtaBanner.astro";
-import Faq from "@/components/Faq.astro";
+import rudol from "@/assets/images/rudol.jpg";
 import Icon from "@/components/Icon.astro";
-import ImportantInfo from "@/components/ImportantInfo.astro";
 import LiveBoxes from "@/components/LiveBoxes.astro";
 import LiveRoutes from "@/components/LiveRoutes.astro";
 import TransportGallery from "@/components/TransportGallery.astro";
-import { highlights, steps, testimonials } from "@/config/content";
-import { appLinks, site } from "@/config/site";
+import {
+  importantInfo,
+  pricingNotes,
+  steps,
+  testimonials,
+} from "@/config/content";
+import { site } from "@/config/site";
 import Base from "@/layouts/Base.astro";
 import { fetchBoxCatalogSafe } from "@/lib/catalog";
-import { todayInSpain } from "@/lib/format";
-import { fetchPublicRoutesSafe, upcomingRoutes } from "@/lib/routes";
+import { fetchPublicRoutesSafe } from "@/lib/routes";
+
+import "@/styles/home.css";
 
 const [routes, boxes] = await Promise.all([
   fetchPublicRoutesSafe(),
   fetchBoxCatalogSafe(),
 ]);
-const routeCount = routes
-  ? upcomingRoutes(routes, todayInSpain()).length
-  : null;
+const portraits = [rudol, mati, laura];
 ---
 
 <Base>
-  <section class="relative overflow-hidden bg-cream">
-    <div
-      class="pointer-events-none absolute -top-32 -left-32 size-[28rem] rounded-full bg-brand/20 blur-3xl"
-      aria-hidden="true"
-    >
-    </div>
-    <div
-      class="container-page relative grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-[1.1fr_1fr]"
-    >
-      <div>
-        <h1
-          class="text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
-        >
-          Tu mascota viaja <span class="text-brand-600">segura y feliz</span> por
-          toda España
-        </h1>
-        <p class="mt-5 max-w-xl text-lg text-ink-soft">
-          Rutas mensuales en furgoneta climatizada, con agua, ventilación y el
-          cariño que merecen. Reserva online y sigue cada viaje desde tu panel.
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a
-            href={appLinks.requestTransport()}
-            class="btn btn-primary h-13 px-7 text-base"
+  <div class="kache-home">
+    <section class="home-hero" aria-labelledby="home-title">
+      <div class="container-page home-hero-inner">
+        <div class="home-hero-copy">
+          <Image
+            src={emblem}
+            alt=""
+            widths={[240, 400]}
+            sizes="240px"
+            class="home-emblem"
+            loading="eager"
+          />
+          <div class="home-hero-title">
+            <h1 id="home-title">Kache Envíos</h1>
+            <p class="home-tagline">Transporte de mascotas</p>
+          </div>
+          <a href={site.phone.href} class="btn btn-primary"
+            >Contacta {site.phone.display}</a
           >
-            Reservar transporte <Icon name="arrowRight" class="size-4" />
-          </a>
-          <a href="/rutas" class="btn btn-outline h-13 px-6 text-base">
-            <Icon name="calendar" class="size-4" /> Ver próximas rutas
-            <span
-              class="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-700 tabular-nums"
-              data-route-count
-              hidden={routeCount === null}>{routeCount ?? ""}</span
-            >
-          </a>
+          <ul class="home-social" aria-label="Redes sociales">
+            {
+              site.social.map((network) => (
+                <li>
+                  <a
+                    href={network.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={network.name}
+                  >
+                    <Icon name={network.icon} class="size-5" />
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
         </div>
-        <p class="mt-6 flex items-center gap-2 text-sm text-ink-soft">
-          <Icon name="phone" class="size-4 text-brand" />
-          ¿Prefieres hablar? <a
-            class="font-bold text-ink underline-offset-4 hover:underline"
-            href={site.phone.href}>{site.phone.display}</a
-          > con {site.phone.contactName}
-        </p>
-      </div>
-      <div
-        class="relative mx-auto grid w-full max-w-md grid-cols-2 gap-4 lg:max-w-none"
-      >
         <Image
-          src={perro}
-          alt="Perro preparado para viajar con Kache Envíos"
-          widths={[320, 600]}
-          sizes="(min-width: 1024px) 280px, 45vw"
-          class="col-span-1 row-span-2 h-full w-full rounded-[2rem] object-cover shadow-card"
+          src={hero}
+          alt="Mascotas viajando con Kache Envíos"
+          widths={[400, 640, 800]}
+          sizes="(min-width: 981px) 490px, 80vw"
+          class="home-hero-photo"
           loading="eager"
           fetchpriority="high"
         />
-        <Image
-          src={gato}
-          alt="Gato tranquilo antes del viaje"
-          widths={[320, 600]}
-          sizes="(min-width: 1024px) 280px, 45vw"
-          class="aspect-square w-full rounded-[2rem] object-cover shadow-card"
-          loading="eager"
-        />
-        <Image
-          src={furgoneta}
-          alt="Furgoneta adaptada de Kache Envíos"
-          widths={[320, 600]}
-          sizes="(min-width: 1024px) 280px, 45vw"
-          class="aspect-square w-full rounded-[2rem] object-cover shadow-card"
-          loading="eager"
-        />
-        <div
-          class="absolute -bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold whitespace-nowrap shadow-card"
-        >
-          <Icon name="shield" class="size-4 text-brand" /> Puerta a puerta opcional
-        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="border-y border-line bg-white">
-    <ul class="container-page grid gap-6 py-8 sm:grid-cols-3">
-      {
-        highlights.map((item) => (
-          <li class="flex items-center gap-4">
-            <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-50 text-brand-700">
-              <Icon name={item.icon} class="size-6" />
-            </span>
-            <span>
-              <>
-                <strong class="block">{item.title}</strong>
-                <span class="text-sm text-muted">{item.text}</span>
-              </>
-            </span>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <section
-    id="servicio"
-    class="container-page py-16 sm:py-24"
-    aria-labelledby="servicio-title"
-  >
-    <div class="max-w-3xl">
-      <h2 id="servicio-title" class="section-title">
-        Especialistas en el transporte de mascotas
-      </h2>
-      <p class="mt-4 text-lg text-ink-soft">
-        Su bienestar es lo más importante. Nuestro equipo se encarga de cada
-        detalle, desde la recogida hasta la entrega, con vehículos adaptados y
-        control de temperatura y ventilación durante todo el trayecto.
-      </p>
-    </div>
-    <ol class="mt-12 grid gap-6 md:grid-cols-3">
-      {
-        steps.map((step, index) => (
-          <li class="card relative p-7">
-            <span
-              class="absolute top-6 right-6 text-5xl font-extrabold text-line tabular-nums"
-              aria-hidden="true"
-            >
-              {index + 1}
-            </span>
-            <span class="grid size-12 place-items-center rounded-2xl bg-brand text-white">
-              <Icon name={step.icon} class="size-6" />
-            </span>
-            <h3 class="mt-5 text-xl font-extrabold">{step.title}</h3>
-            <p class="mt-2 text-ink-soft">{step.text}</p>
-          </li>
-        ))
-      }
-    </ol>
-  </section>
-
-  <section class="pb-16 sm:pb-24" aria-labelledby="video-title">
-    <div class="container-page">
-      <h2 id="video-title" class="section-title text-center">
-        Conoce Kache Envíos
-      </h2>
+    <section
+      id="servicio"
+      class="home-service container-page"
+      aria-labelledby="servicio-title"
+    >
       <video
-        class="mx-auto mt-10 aspect-video w-full max-w-4xl rounded-[2rem] bg-ink shadow-card"
+        class="home-video"
         src={presentacion}
         controls
         playsinline
         preload="metadata"
-        aria-label="Vídeo de presentación de Kache Envíos"
+        aria-label="Vídeo de presentación de Kache Envíos"></video>
+      <h2 id="servicio-title" class="home-heading">
+        Disponemos de Servicio<br />PUERTA A PUERTA OPCIONAL
+      </h2>
+      <p class="home-subheading">Consulta nuestras tarifas y precios</p>
+      <a href={site.phone.href} class="btn btn-primary"
+        >¡Llámanos! {site.phone.display}</a
       >
-      </video>
-    </div>
-  </section>
-
-  <section class="bg-cream py-16 sm:py-24" aria-labelledby="rutas-title">
-    <div class="container-page">
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 id="rutas-title" class="section-title">Próximas rutas</h2>
-          <p class="mt-3 max-w-xl text-ink-soft">
-            Salidas desde {site.location}. Elige la tuya y reserva plaza
-            directamente.
-          </p>
-        </div>
-        <a href="/rutas" class="btn btn-outline"
-          >Ver todas las rutas <Icon name="arrowRight" class="size-4" /></a
-        >
+      <div class="home-note">
+        <h3>
+          Kache Envíos, empresa especializada en el transporte de mascotas.
+        </h3>
+        <p>
+          Nuestro transporte de mascotas es un servicio en el que su bienestar
+          es lo más importante. Nos aseguramos de que cada mascota sea tratada
+          con los cuidados que necesita, brindándoles un viaje seguro y cómodo.
+          Nuestro equipo de profesionales está capacitado para manejar cualquier
+          situación, garantizando que sus amigos peludos reciban la atención
+          adecuada en todo momento durante el transporte de tu mascota.
+        </p>
+        <p>
+          Nuestro equipo de profesionales altamente capacitados se encarga de
+          cada detalle del viaje, desde la recogida hasta la entrega. Utilizamos
+          vehículos especialmente adaptados para el transporte de mascotas,
+          equipados con sistemas de control de temperatura y ventilación para
+          mantener un ambiente óptimo durante todo el trayecto.
+        </p>
       </div>
-      <LiveRoutes routes={routes} limit={3} compact class="mt-10" />
-    </div>
-  </section>
+    </section>
 
-  <TransportGallery />
+    <section class="home-how container-page" aria-labelledby="como-title">
+      <h2 id="como-title" class="home-heading">¿Cómo lo hacemos?</h2>
+      <ol class="home-steps">
+        {
+          steps.map((step) => (
+            <li>
+              <span class="home-step-icon" aria-hidden="true">
+                {step.glyph}
+              </span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <a href={site.phone.href} class="btn btn-primary"
+        >¿Alguna duda? {site.phone.display}</a
+      >
+    </section>
 
-  <section class="bg-cream py-16 sm:py-24" aria-labelledby="tarifas-title">
-    <div class="container-page">
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 id="tarifas-title" class="section-title">Tarifas por box</h2>
-          <p class="mt-3 max-w-xl text-ink-soft">
-            Precio por mascota y trayecto en nuestros puntos de encuentro.
-          </p>
-        </div>
-        <a href="/tarifas" class="btn btn-outline"
-          >Detalles y condiciones <Icon name="arrowRight" class="size-4" /></a
+    <TransportGallery />
+
+    <section id="rutas" class="home-routes" aria-labelledby="rutas-title">
+      <div class="container-page">
+        <h2 id="rutas-title" class="home-heading">Próximas rutas</h2>
+        <LiveRoutes
+          routes={routes}
+          limit={3}
+          appearance="classic"
+          class="home-route-list"
+        />
+        <a href="/rutas" class="home-all-routes"
+          >Ver todas las rutas y puntos de encuentro <Icon
+            name="arrowRight"
+            class="size-4"
+          /></a
         >
+        <div class="home-route-info">
+          <h3>INFORMAMOS DE LAS RUTAS MENSUALES<br />¡CONTÁCTANOS!</h3>
+          <p>
+            Si has adquirido más de un cachorro en el mismo bóxer, o prefiere
+            origen y / o destino en otro punto DIFERENTE a los nuestros, el
+            precio del transporte variará según el número de mascotas, y / o km,
+            para ello contacta con nosotros.
+          </p>
+          <p>
+            CONTACTAR CON NOSOTROS PARA:<br />
+            -Contratación de aves, hurones o exóticos.<br />
+            -Si la mascota pesa más de 40 kgs.<br />
+            ¡¡¡PARA LA CONTRATACIÓN DE LA RUTA CONTACTE CON NOSOTROS!!!
+          </p>
+          <a href={site.phone.href} class="btn btn-primary"
+            >Llama al {site.phone.display}</a
+          >
+        </div>
       </div>
-      <LiveBoxes boxes={boxes} class="mt-10" />
-    </div>
-  </section>
+    </section>
 
-  <section
-    class="container-page py-16 sm:py-24"
-    aria-labelledby="opiniones-title"
-  >
-    <h2 id="opiniones-title" class="section-title">Lo que dicen de nosotros</h2>
-    <ul class="mt-10 grid gap-6 md:grid-cols-3">
-      {
-        testimonials.map((item) => (
-          <li class="card flex flex-col gap-4 p-7">
-            <Icon name="heart" class="size-6 text-brand" />
-            <blockquote class="flex-1 text-ink-soft">“{item.text}”</blockquote>
-            <p class="font-bold">{item.name}</p>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+    <section class="home-delivery" aria-labelledby="entrega-title">
+      <div class="container-page home-delivery-inner">
+        <Image
+          src={bulldog}
+          alt="Bulldog con su correa, preparado para el viaje"
+          widths={[360, 600, 800]}
+          sizes="(min-width: 768px) 480px, 80vw"
+          class="home-delivery-dog"
+        />
+        <div>
+          <h2 id="entrega-title" class="home-heading">
+            Entrega en<br />toda España
+          </h2>
+          <p class="home-subheading">
+            ¡Échale un vistazo a<br />nuestras tarifas!
+          </p>
+          <p>
+            Elige tu ruta, infórmate sobre precios y puntos de encuentro en los
+            que paramos CONTACTANDO AL {site.phone.display}; así como si decides
+            contratar un servicio exclusivo por si no puedes desplazarte.
+            <strong
+              >¡Somos la elección ideal para el transporte de mascotas!</strong
+            >
+          </p>
+          <p>
+            Todo nuestro equipo de profesionales trabaja para tu tranquilidad y
+            el bienestar de tu mascota, cada mascota es monitoreada
+            constantemente para asegurarse de que esté cómoda y libre de estrés.
+          </p>
+          <p>
+            *(La contratación del transporte puerta a puerta conlleva otro
+            coste, el cual depende de la distancia, kms, tiempo, etc.)*
+          </p>
+          <a href={site.phone.href} class="btn btn-primary"
+            >¿Alguna duda? {site.phone.display}</a
+          >
+        </div>
+      </div>
+    </section>
 
-  <ImportantInfo />
-  <Faq />
-  <CtaBanner />
+    <section class="home-reviews" aria-labelledby="opiniones-title">
+      <div class="container-page">
+        <h2 id="opiniones-title" class="home-heading">Dueños contentos</h2>
+        <div class="home-review-gallery" data-gallery>
+          <ul
+            class="home-testimonials"
+            data-gallery-track
+            tabindex="0"
+            aria-label="Opiniones de nuestros clientes"
+          >
+            {
+              testimonials.map((item, index) => (
+                <li>
+                  <Image
+                    src={portraits[index]}
+                    alt=""
+                    widths={[80, 160]}
+                    sizes="80px"
+                    class="home-review-photo"
+                  />
+                  <p class="home-review-stars" aria-label="5 estrellas">
+                    ☆☆☆☆☆
+                  </p>
+                  <details class="home-review-text">
+                    <summary>
+                      <span>{item.text.slice(0, 100)}…</span>
+                      <span class="home-review-more">Leer más</span>
+                    </summary>
+                    <blockquote>“{item.text}”</blockquote>
+                  </details>
+                  <p class="home-review-name">{item.name}</p>
+                </li>
+              ))
+            }
+          </ul>
+          <button
+            type="button"
+            data-gallery-prev
+            aria-label="Opiniones anteriores"
+            class="home-review-arrow home-review-prev"
+            ><Icon name="arrowRight" class="size-7 rotate-180" /></button
+          >
+          <button
+            type="button"
+            data-gallery-next
+            aria-label="Opiniones siguientes"
+            class="home-review-arrow home-review-next"
+            ><Icon name="arrowRight" class="size-7" /></button
+          >
+        </div>
+        <div class="home-conditions">
+          <details>
+            <summary>Información importante</summary>
+            <ul>{importantInfo.map((item) => <li>{item}</li>)}</ul>
+          </details>
+          <details id="tarifas">
+            <summary>Tarifas</summary>
+            <LiveBoxes boxes={boxes} class="py-6" />
+            <ul>{pricingNotes.map((item) => <li>{item}</li>)}</ul>
+            <a href="/tarifas" class="btn btn-primary"
+              >Ver tarifas y condiciones</a
+            >
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="contacto"
+      class="home-contact"
+      aria-labelledby="contacto-title"
+    >
+      <div class="container-page">
+        <h2 id="contacto-title" class="home-heading">Contacta con nosotros</h2>
+        <div class="home-contact-inner">
+          <Image
+            src={contactDog}
+            alt="Perro en su transportín, listo para salir"
+            widths={[400, 640]}
+            sizes="(min-width: 768px) 480px, 90vw"
+            class="home-contact-photo"
+          />
+          <div class="home-contact-copy">
+            <Image
+              src={emblem}
+              alt="Kache Envíos"
+              widths={[200, 320]}
+              sizes="180px"
+              class="home-contact-emblem"
+            />
+            <div>
+              <h3>U b i c a c i ó n</h3>
+              <p>{site.location}</p>
+            </div>
+            <div>
+              <h3>T e l é f o n o</h3>
+              <a href={site.phone.href}>{site.phone.display}</a>
+            </div>
+            <div>
+              <h3>E m a i l</h3>
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </Base>

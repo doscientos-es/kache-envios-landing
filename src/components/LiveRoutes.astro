@@ -1,21 +1,33 @@
 ---
 import { signature, todayInSpain } from "@/lib/format";
 import { renderRouteList, renderRoutesNotice } from "@/lib/render";
+import type { RouteCardOptions } from "@/lib/render";
 import { upcomingRoutes, type PublicRoute } from "@/lib/routes";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 type Props = {
   /** `null` when the build could not reach Supabase: the browser fills it in. */
   routes: PublicRoute[] | null;
   limit?: number;
   compact?: boolean;
+  appearance?: RouteCardOptions["appearance"];
   class?: string;
 };
 
-const { routes, limit, compact = false, class: className = "" } = Astro.props;
+const {
+  routes,
+  limit,
+  compact = false,
+  appearance = "default",
+  class: className = "",
+} = Astro.props;
 const today = todayInSpain();
 const visible = routes ? upcomingRoutes(routes, today).slice(0, limit) : [];
-const listHtml = renderRouteList(visible, { today, compact });
-const noticeHtml = routes && !visible.length ? renderRoutesNotice("empty") : "";
+const listHtml = renderRouteList(visible, { today, compact, appearance });
+const noticeHtml = routes && !visible.length
+  ? renderRoutesNotice("empty")
+  : !routes && !isSupabaseConfigured ? renderRoutesNotice("error") : "";
+const loading = !routes && isSupabaseConfigured;
 ---
 
 <div
@@ -23,7 +35,8 @@ const noticeHtml = routes && !visible.length ? renderRoutesNotice("empty") : "";
   data-live-routes
   data-limit={limit}
   data-compact={String(compact)}
-  aria-busy={routes ? undefined : "true"}
+  data-appearance={appearance}
+  aria-busy={loading ? "true" : undefined}
   aria-live="polite"
 >
   <ul
@@ -34,7 +47,7 @@ const noticeHtml = routes && !visible.length ? renderRoutesNotice("empty") : "";
   />
   <div data-routes-notice set:html={noticeHtml} />
   {
-    !routes && (
+    loading && (
       <div
         class="grid gap-5 md:grid-cols-2 lg:grid-cols-3"
         data-routes-skeleton

@@ -1,21 +1,24 @@
 import type { IconName } from '@/lib/icons'
 
 /** Editorial copy. Routes, dates and prices are never hardcoded: they come from Supabase. */
-export const steps: { icon: IconName; title: string; text: string }[] = [
+export const steps: { icon: IconName; glyph: string; title: string; text: string }[] = [
   {
     icon: 'paw',
-    title: 'Recogemos a tu mascota',
-    text: 'En nuestros puntos de encuentro o puerta a puerta, con vehículos adaptados y un trato cariñoso y respetuoso desde el primer minuto.',
+    glyph: '\uf1b0',
+    title: 'Recogemos tu mascota',
+    text: 'Utilizando vehículos especialmente adaptados para el transporte de animales, con condiciones óptimas de temperatura y ventilación. Estamos comprometidos con el trato cariñoso y respetuoso hacia cada mascota.',
   },
   {
     icon: 'route',
-    title: 'Viaja en nuestras rutas',
-    text: 'Rutas mensuales por el sur, el centro y el norte peninsular y la costa mediterránea, con temperatura y ventilación controladas.',
+    glyph: '\uf48b',
+    title: 'Nuestras rutas',
+    text: 'Disponemos de diferentes rutas para adaptarnos a las necesidades de cada cliente; abarcando desde la zona sur de la Península, zona centro y Norte de la misma, y la costa mediterránea.',
   },
   {
     icon: 'home',
+    glyph: '\uf6d3',
     title: 'Te la entregamos',
-    text: 'Llega tranquila y controlada. Te avisamos durante el trayecto y confirmamos los horarios al cerrar la ruta.',
+    text: 'Te entregamos tu mascota con total seguridad de que habrá recibido un trato cariñoso y respetuoso, teniendo además un viaje tranquilo y controlado. Tu mascota ya está en tu casa. Esperamos volver a trabajar juntos.',
   },
 ]
 

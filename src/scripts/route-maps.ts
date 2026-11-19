@@ -62,7 +62,11 @@ function drawRoute(L: Leaflet, panel: HTMLElement, points: RoutePoint[]) {
       iconSize: [32, 32],
       iconAnchor: [16, 16],
     })
-    const role = isBase ? 'Salida y regreso' : `Parada ${visits[0]}`
+    const role = isBase
+      ? visits.length > 1
+        ? 'Salida y regreso'
+        : 'Salida'
+      : `Parada ${visits[0]}`
     L.marker([point.lat, point.lng], { icon, title: point.name, keyboard: false })
       .bindTooltip(escapeText(point.name), { direction: 'top', offset: [0, -14] })
       .bindPopup(`<strong>${escapeText(point.name)}</strong><br>${role}`)

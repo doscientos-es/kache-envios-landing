@@ -1,98 +1,57 @@
 ---
-import { appLinks, navigation, site } from "@/config/site";
-
-import Icon from "./Icon.astro";
-
-const year = new Date().getFullYear();
+import { Image } from "astro:assets";
+import emblem from "@/assets/images/kache-emblem.png";
+import { appLinks, site } from "@/config/site";
 ---
 
-<footer class="bg-ink text-white/80">
-  <div
-    class="container-page grid gap-10 py-14 md:grid-cols-[1fr_auto_auto] md:gap-x-16"
-  >
-    <div class="grid content-start gap-4">
-      <img
-        src="/logo-light.svg"
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <a href="/" aria-label={`${site.name}, inicio`}>
+      <Image
+        src={emblem}
         alt={site.name}
-        width="62"
-        height="50"
-        class="h-14 w-auto self-start justify-self-start"
+        widths={[216, 432]}
+        sizes="216px"
+        class="site-footer-logo"
       />
-      <p class="max-w-sm text-sm">
-        Transporte de mascotas seguro, cómodo y con cariño por toda España desde {
-          site.location
-        }.
-      </p>
-    </div>
-
+    </a>
     <nav aria-label="Pie de página">
-      <h2 class="text-sm font-bold text-white">Navegación</h2>
-      <ul class="mt-4 grid gap-2 text-sm">
-        {
-          navigation.map((item) => (
-            <li>
-              <a class="hover:text-white" href={item.href}>
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-        <li>
-          <a class="hover:text-white" href={appLinks.clientPortal}
-            >Mi panel de cliente</a>
-        </li>
-        <li>
-          <a class="hover:text-white" href={appLinks.requestTransport()}
-            >Solicitar transporte</a
-          >
-        </li>
-      </ul>
+      <a href="/contacto">Contacto</a> · <a href={appLinks.clientPortal}
+        >Mi panel</a
+      > · <a href="/sitemap-index.xml">Mapa del Sitio</a>
     </nav>
-
-    <div>
-      <h2 class="text-sm font-bold text-white">Contacto</h2>
-      <ul class="mt-4 grid gap-3 text-sm">
-        <li class="flex items-center gap-2">
-          <Icon name="phone" class="size-4 shrink-0 text-brand" />
-          <a class="hover:text-white" href={site.phone.href}>
-            {site.phone.display} · {site.phone.contactName}
-          </a>
-        </li>
-        <li class="flex items-center gap-2">
-          <Icon name="mail" class="size-4 shrink-0 text-brand" />
-          <a
-            class="min-w-0 break-words hover:text-white"
-            href={`mailto:${site.email}`}>{site.email}</a
-          >
-        </li>
-        <li class="flex items-center gap-2">
-          <Icon name="mapPin" class="size-4 shrink-0 text-brand" />
-          {site.location}
-        </li>
-      </ul>
-      <ul class="mt-5 flex gap-3" aria-label="Redes sociales">
-        {
-          site.social.map((network) => (
-            <li>
-              <a
-                href={network.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${network.name} de ${site.name}`}
-                class="grid size-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-brand-600"
-              >
-                <Icon name={network.icon} class="size-5" />
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </div>
-  <div class="border-t border-white/10">
-    <p class="container-page py-5 text-xs text-white/60">
-      © {year}
-      {site.name}. Todos los derechos reservados.
-    </p>
   </div>
 </footer>
+
+<style>
+  .site-footer {
+    border-top: 3px inset #8fbabf;
+    background: #000;
+    color: #fff;
+  }
+  .site-footer-inner {
+    width: 80%;
+    max-width: 1080px;
+    margin-inline: auto;
+    padding: 15px 0 18px;
+  }
+  .site-footer-logo {
+    width: 216px;
+    height: auto;
+    margin-inline: auto;
+  }
+  nav {
+    padding: 22px 25px 9px;
+    font: 700 19px/1.8 var(--font-display);
+  }
+  nav a:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 767px) {
+    nav {
+      padding-inline: 0;
+      font-size: 16px;
+      text-align: center;
+    }
+  }
+</style>

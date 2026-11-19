@@ -12,6 +12,8 @@ export type PublicRoute = {
   base: string
   /** Unique intermediate localities in travel order. */
   stops: string[]
+  /** All localities in travel order, including repeated visits and the return to base. */
+  itinerary?: string[]
   /** Every stop with known coordinates, in travel order (base included, repeated if the route returns). */
   points: RoutePoint[]
 }
@@ -53,6 +55,7 @@ export function mapRoute(row: PublicRouteRow): PublicRoute {
     color: HEX_COLOR.test(row.template_color) ? row.template_color : FALLBACK_COLOR,
     base,
     stops,
+    itinerary: localities,
     points: mapPoints(row.stops),
   }
 }
@@ -79,6 +82,7 @@ export async function fetchPublicRoutesSafe(): Promise<PublicRoute[] | null> {
 /** A map needs at least two stops with coordinates. Older cached routes may lack `points`. */
 export function routePoints(route: PublicRoute): RoutePoint[] {
   const points = route.points ?? []
+  if (route.itinerary && points.length !== route.itinerary.length) return []
   return points.length >= 2 ? points : []
 }
 
@@ -122,7 +126,9 @@ export function googleMapsRouteLinks(points: RoutePoint[]) {
 }
 
 export function upcomingRoutes(routes: PublicRoute[], today: string) {
-  return routes.filter((route) => route.serviceDate >= today)
+  return routes
+    .filter((route) => route.serviceDate >= today)
+    .toSorted((a, b) => a.serviceDate.localeCompare(b.serviceDate))
 }
 
 export function routeLocalities(routes: PublicRoute[]) {

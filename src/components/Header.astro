@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+import originalLogo from "@/assets/images/header-original.png";
 import { appLinks, navigation, site } from "@/config/site";
 
 import Icon from "./Icon.astro";
@@ -8,7 +10,7 @@ const isCurrent = (href: string) => !href.includes("#") && href === path;
 ---
 
 <header
-  class="sticky top-0 z-40 border-b border-transparent bg-white/85 backdrop-blur-md transition-colors data-[scrolled]:border-line"
+  class="site-header sticky top-0 z-40 bg-black text-white"
   data-site-header
 >
   <a
@@ -17,35 +19,30 @@ const isCurrent = (href: string) => !href.includes("#") && href === path;
   >
     Saltar al contenido
   </a>
-  <div class="container-page flex h-18 items-center justify-between gap-4">
+  <div class="site-header-inner flex items-center justify-between gap-4">
     <a
       href="/"
       class="flex shrink-0 items-center gap-3"
       aria-label={`${site.name}, inicio`}
     >
-      <img
-        src="/logo-dark.svg"
+      <Image
+        src={originalLogo}
         alt=""
-        width="62"
-        height="50"
-        class="h-12 w-auto rounded-lg"
+        widths={[220, 440]}
+        sizes="220px"
+        class="site-header-logo"
       />
-      <span class="hidden text-sm leading-tight font-extrabold sm:block">
-        Kache Envíos<span class="block font-medium text-muted"
-          >Transporte de mascotas</span
-        >
-      </span>
     </a>
 
-    <nav aria-label="Principal" class="hidden lg:block">
-      <ul class="flex items-center gap-1">
+    <nav aria-label="Principal" class="site-navigation hidden lg:block">
+      <ul class="flex items-center gap-5">
         {
           navigation.map((item) => (
             <li>
               <a
                 href={item.href}
                 aria-current={isCurrent(item.href) ? "page" : undefined}
-                class="rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-cream hover:text-ink aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-700"
+                class="py-2 text-white/85 hover:text-white aria-[current=page]:text-[#d3d3d3]"
               >
                 {item.label}
               </a>
@@ -58,19 +55,14 @@ const isCurrent = (href: string) => !href.includes("#") && href === path;
     <div class="flex items-center gap-2">
       <a
         href={appLinks.clientPortal}
-        class="btn btn-outline hidden sm:inline-flex"
+        class="site-portal"
+        aria-label="Mi panel de cliente"
       >
-        <Icon name="user" class="size-4" /> Mi panel
-      </a>
-      <a
-        href={appLinks.requestTransport()}
-        class="btn btn-primary hidden md:inline-flex"
-      >
-        Reservar transporte
+        <Icon name="user" class="size-5" />
       </a>
       <button
         type="button"
-        class="btn btn-outline size-11 px-0 lg:hidden"
+        class="btn btn-ghost-light size-11 px-0 lg:hidden"
         aria-controls="mobile-menu"
         aria-expanded="false"
         aria-label="Abrir menú"
@@ -83,7 +75,7 @@ const isCurrent = (href: string) => !href.includes("#") && href === path;
 
   <div
     id="mobile-menu"
-    class="border-t border-line bg-white lg:hidden"
+    class="border-t border-white/15 bg-black lg:hidden"
     hidden
     data-menu
   >
@@ -93,7 +85,7 @@ const isCurrent = (href: string) => !href.includes("#") && href === path;
           <a
             href={item.href}
             aria-current={isCurrent(item.href) ? "page" : undefined}
-            class="rounded-xl px-3 py-3 text-base font-semibold hover:bg-cream aria-[current=page]:text-brand-700"
+            class="rounded-xl px-3 py-3 text-base font-semibold hover:bg-white/10 aria-[current=page]:underline"
           >
             {item.label}
           </a>
@@ -103,13 +95,67 @@ const isCurrent = (href: string) => !href.includes("#") && href === path;
         <a href={appLinks.requestTransport()} class="btn btn-primary"
           >Reservar transporte</a
         >
-        <a href={appLinks.clientPortal} class="btn btn-outline">
+        <a href={appLinks.clientPortal} class="btn btn-ghost-light">
           <Icon name="user" class="size-4" /> Mi panel de cliente
         </a>
       </div>
     </nav>
   </div>
 </header>
+
+<style>
+  .site-header-inner {
+    width: 80%;
+    max-width: 1080px;
+    min-height: 103px;
+    margin-inline: auto;
+  }
+  .site-header-logo {
+    width: auto;
+    height: 95px;
+  }
+  .site-navigation {
+    margin-left: auto;
+    font:
+      700 20px/1 var(--font-amatic),
+      cursive;
+  }
+  .site-portal {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    color: #8fbabf;
+  }
+  .site-header[data-scrolled] {
+    background: #fff;
+    color: #444;
+    box-shadow: 0 0 7px #0002;
+  }
+  .site-header[data-scrolled] .site-navigation a {
+    color: #444;
+  }
+  .site-header[data-scrolled] .site-header-inner {
+    min-height: 54px;
+  }
+  .site-header[data-scrolled] .site-header-logo {
+    height: 48px;
+  }
+  .site-header[data-scrolled] [data-menu-toggle] {
+    color: #444;
+    border-color: #ddd;
+  }
+  @media (max-width: 1023px) {
+    .site-header-inner {
+      min-height: 80px;
+    }
+    .site-header-logo {
+      height: 70px;
+      max-width: 50vw;
+      object-fit: contain;
+    }
+  }
+</style>
 
 <script>
   const header = document.querySelector<HTMLElement>("[data-site-header]");

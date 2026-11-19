@@ -84,6 +84,7 @@ function renderRoutesSection(section: HTMLElement, routes: PublicRoute[] | null)
     renderRouteList(visible, {
       today: todayInSpain(),
       compact: section.dataset.compact === 'true',
+      appearance: section.dataset.appearance === 'classic' ? 'classic' : 'default',
     }),
   )
   replaceHtml(notice, visible.length ? '' : renderRoutesNotice('empty'))

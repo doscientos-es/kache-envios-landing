@@ -11,9 +11,17 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.google(),
-      name: 'Onest',
-      cssVariable: '--font-onest',
-      weights: [400, 500, 600, 700, 800],
+      name: 'Poppins',
+      cssVariable: '--font-poppins',
+      weights: [400, 500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin'],
+    },
+    {
+      provider: fontProviders.google(),
+      name: 'Amatic SC',
+      cssVariable: '--font-amatic',
+      weights: [400, 700],
       styles: ['normal'],
       subsets: ['latin'],
     },

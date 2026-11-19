@@ -1,16 +1,25 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'Apple Chancery';
+  src: url('/fonts/apple-chancery.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 @theme {
-  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
-  --color-brand: #ee6a5b;
-  --color-brand-600: #dc5545;
-  --color-brand-700: #b8402f;
+  --font-sans: var(--font-poppins), Arial, sans-serif;
+  --font-display: 'Apple Chancery', Georgia, 'Times New Roman', serif;
+  --color-brand: #d8040e;
+  --color-brand-600: #d8040e;
+  --color-brand-700: #b0030b;
   --color-brand-50: #fff4f2;
   --color-brand-100: #fde2dd;
-  --color-ink: #1d1d1b;
+  --color-ink: #000000;
   --color-ink-soft: #4a4a46;
   --color-muted: #6f6f69;
-  --color-cream: #fbf7f2;
+  --color-cream: #efebdc;
   --color-line: #ece6df;
   --radius-card: 1.5rem;
   --shadow-card: 0 1px 2px rgb(29 29 27 / 0.04), 0 12px 32px -12px rgb(29 29 27 / 0.12);
@@ -95,11 +104,11 @@
 
 @layer components {
   .container-page {
-    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+    @apply mx-auto w-full max-w-[1080px] px-5 sm:px-8;
   }
 
   .section-title {
-    @apply text-ink text-3xl font-extrabold tracking-tight sm:text-4xl;
+    @apply text-ink font-display text-4xl font-normal sm:text-5xl;
   }
 
   .btn {
@@ -107,7 +116,7 @@
   }
 
   .btn-primary {
-    @apply bg-brand-600 hover:bg-brand-700 text-white shadow-[0_8px_20px_-8px_rgb(238_106_91/0.8)];
+    @apply bg-brand-600 hover:bg-brand-700 text-white;
   }
 
   .btn-dark {

@@ -42,7 +42,7 @@ const jsonLd = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#ee6a5b" />
+    <meta name="theme-color" content="#000000" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
@@ -54,7 +54,15 @@ const jsonLd = {
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
-    <Font cssVariable="--font-onest" preload />
+    <Font cssVariable="--font-poppins" preload />
+    <Font cssVariable="--font-amatic" preload />
+    <link
+      rel="preload"
+      href="/fonts/apple-chancery.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body class="flex min-h-dvh flex-col">
