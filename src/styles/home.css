@@ -18,11 +18,18 @@
 }
 .kache-home .btn-primary {
   min-height: 0;
-  padding: 0.3em 1em;
+  padding: 0.8em 2em;
   border: 2px solid transparent;
   font-size: 18px;
   line-height: 1.7;
+  box-shadow: 0px 8px 13px rgba(184, 78, 78, 0.3);
 }
+
+.btn-hero{
+  margin-top: 30px;
+  margin-right: 100px;
+}
+
 .kache-home h2,
 .kache-home h3 {
   text-wrap: initial;
@@ -48,11 +55,16 @@
   font-size: 51px;
   line-height: 1.2;
 }
+.home-phone{
+  font-family: "Monotype Corsiva", cursive;
+  color: rgb(107, 107, 107);
+  font-size: 26px;
+}
 .home-hero {
   background: #000;
   color: #fff;
   overflow: hidden;
-  padding-block: 4vw 21px;
+  padding-block: 2vw 21px;
 }
 .home-hero-inner {
   display: grid;
@@ -62,11 +74,12 @@
 }
 .kache-home .home-hero-inner {
   width: 90%;
-  margin-left: 329px;
+  margin-left: clamp(0px, 17vw, 329px);
 }
 .home-hero-copy {
   text-align: center;
   padding-top: 5vw;
+  animation: entrarBottom 1s;
 }
 .home-emblem {
   width: 43%;
@@ -83,7 +96,7 @@
 .home-hero h1 {
   margin-bottom: 20px;
   color: #e02b20;
-  font: 400 88px/0.9 var(--font-display);
+  font: 700 88px/0.9 var(--font-display);
 }
 .home-tagline {
   margin: 0 0 1.5rem;
@@ -106,21 +119,23 @@
   display: flex;
   justify-content: center;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
+  margin-right: 100px;
 }
 .home-social a {
   display: grid;
-  width: 32px;
-  height: 32px;
   place-items: center;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: #0006;
+  background: rgba(252, 252, 252, 0.4);
+  color: black;
 }
 .home-social a:hover {
   background: var(--color-brand);
 }
 .home-service {
-  padding-block: 18px 48px;
+  padding-block: 100px 48px;
   text-align: center;
 }
 .home-service > .home-heading {
@@ -208,6 +223,7 @@
   text-align: center;
 }
 .home-transport-gallery {
+  margin: 70px 0;
   width: 86%;
   max-width: 1463px;
   margin-inline: auto;
@@ -217,6 +233,7 @@
   background: #000;
   color: #fff;
   text-align: center;
+  padding-bottom: 150px;
 }
 .home-routes > .container-page {
   width: 100%;
@@ -372,7 +389,6 @@
 }
 .home-delivery {
   position: relative;
-  margin-top: 166px;
   padding-block: 4vw 6vw;
   background:
     url('/images/delivery-trail.png') center bottom / contain no-repeat,
@@ -387,8 +403,9 @@
 }
 .home-delivery-dog {
   align-self: start;
-  width: 100%;
-  margin-top: -15vw;
+  width: 600px;
+  max-width: none; 
+  margin-top: -14vw;
   margin-left: -10vw;
   object-fit: contain;
   object-position: bottom;
@@ -407,7 +424,7 @@
   margin-top: 1.5rem;
 }
 .home-reviews {
-  padding-block: 41px 22px;
+  padding-block: 80px 22px;
   background: #000;
   color: #fff;
 }
@@ -494,8 +511,8 @@
   visibility: hidden;
 }
 .home-conditions {
-  margin: 22px auto;
-  box-shadow: 0 6px 0 10px #e02b20;
+  margin: 90px auto;
+  box-shadow: 0 0px 0 10px #e02b20;
 }
 .home-conditions details {
   padding: 1rem 1.25rem;
@@ -543,6 +560,7 @@
   margin-left: -7vw;
   border-radius: 10px;
   box-shadow: 0 76px 68px -28px #0005;
+  animation: entrar 1s;
 }
 .home-contact-copy {
   display: grid;
@@ -564,7 +582,106 @@
 .home-contact-copy a:not(.btn):hover {
   text-decoration: underline;
 }
+
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.back-to-top {
+  position: fixed;
+  right: 0;
+  bottom: 7rem;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 0.75rem 0 0 0.75rem;
+  transition: background 0.2s;
+}
+.back-to-top:hover {
+  background: var(--color-brand);
+}
+
+@supports (animation-timeline: scroll()) {
+  .back-to-top {
+    animation: back-to-top-show ease-out both;
+    animation-timeline: scroll(root);
+    animation-range: 200px 700px; /* tramo ancho = aparición lenta */
+  }
+  @keyframes back-to-top-show {
+    from {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+  }
+}
+
+@keyframes entrarLeft {
+  0%{
+    opacity: 0;
+    transform: translateX(-60px);
+  }100%{
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes entrarBottom {
+  0%{
+    opacity: 0;
+    transform: translateY(-30px);
+  }100%{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+@keyframes entrarRight {
+  0%{
+    opacity: 0;
+    transform: translateX(30px);
+  }100%{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
 @media (max-width: 980px) {
+  .kache-home .home-hero-inner {
+    width: 90%;
+    margin-inline: auto;
+  }
+  .home-emblem {
+    margin: 0 auto 2px;
+    padding-right: 0;
+  }
+  .btn-hero,
+  .home-social {
+    margin-right: 0;
+  }
+  .home-hero {
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    padding-block: 20vw 21px;
+  }
   .home-heading {
     font-size: 60px;
   }
@@ -651,14 +768,53 @@
   .home-contact-inner {
     gap: 1.5rem;
   }
+  .home-delivery-inner .home-delivery-dog {
+    width: 75%;
+    max-width: 320px;
+    height: auto;
+    margin: -20vw auto 0;
+    justify-self: center;
+  }
 }
 @media (max-width: 767px) {
+    .home-hero {
+    padding-block: 28vw 32px;
+  }
+  .home-hero-inner {
+    gap: 2rem;
+  }
+  .home-hero-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .home-hero-title {
+    margin-top: 16px;
+  }
+  .home-phone {
+    display: none;
+  }
+  .home-hero h1 {
+    font-size: 48px;
+  }
+  .home-tagline {
+    font-size: 28px;
+  }
+  .btn-hero {
+    margin-top: 20px;
+  }
+  .home-hero-photo {
+    max-width: 320px;
+    margin-top: 0;
+    border-radius: 120px;
+  }
   .kache-home .container-page {
     width: 90%;
   }
   .kache-home .home-routes > .container-page {
     width: 100%;
   }
+ 
   .home-heading,
   .home-routes .home-heading {
     font-size: 51px;
@@ -675,8 +831,27 @@
   .home-transport-note {
     width: 90%;
   }
+  .home-route-info{
+    font-size: 15px;
+  }
+  .home-route-info span{
+    font-size: 25px;
+  }
   .home-hero-inner {
     grid-template-columns: 1fr;
+  }
+  .home-how{
+    border-top: 1px solid;
+  }
+  .home-steps{
+    border-top: 1px dashed ;
+    box-sizing: border-box;
+    padding-top: 50px;
+    width: 300px;
+  }
+  .home-note{
+    width: 100%;
+    margin-top: 30px;
   }
   .home-hero-photo {
     width: 100%;
@@ -714,6 +889,16 @@
   }
   .home-route-info {
     width: 94%;
+  }
+  .home-service {
+    padding-block: 50px 48px;
+    text-align: center;
+  }
+  .kache-home .btn-primary{
+    margin: 0 0;
+    width: 260px;
+    font-size: 15px;
+    margin-top: 30px;
   }
   .classic-route-title {
     font-size: 31px;

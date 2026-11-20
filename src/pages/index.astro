@@ -35,7 +35,7 @@ const portraits = [rudol, mati, laura];
 
 <Base>
   <div class="kache-home">
-    <section class="home-hero" aria-labelledby="home-title">
+    <section class="home-hero min-h-[100svh]" aria-labelledby="home-title">
       <div class="container-page home-hero-inner">
         <div class="home-hero-copy">
           <Image
@@ -47,10 +47,11 @@ const portraits = [rudol, mati, laura];
             loading="eager"
           />
           <div class="home-hero-title">
+            <p class="home-phone">CONTACTE AL <br> 658 60 49 33 con STELLA</p>
             <h1 id="home-title">Kache Envíos</h1>
             <p class="home-tagline">Transporte de mascotas</p>
           </div>
-          <a href={site.phone.href} class="btn btn-primary"
+          <a href={site.phone.href} class="btn btn-primary btn-hero"
             >Contacta {site.phone.display}</a
           >
           <ul class="home-social" aria-label="Redes sociales">
@@ -98,7 +99,7 @@ const portraits = [rudol, mati, laura];
         Disponemos de Servicio<br />PUERTA A PUERTA OPCIONAL
       </h2>
       <p class="home-subheading">Consulta nuestras tarifas y precios</p>
-      <a href={site.phone.href} class="btn btn-primary"
+      <a href={site.phone.href} class="btn btn-primary mt-8"
         >¡Llámanos! {site.phone.display}</a
       >
       <div class="home-note">
@@ -169,7 +170,7 @@ const portraits = [rudol, mati, laura];
             para ello contacta con nosotros.
           </p>
           <p>
-            CONTACTAR CON NOSOTROS PARA:<br />
+            <span class="text-[#e02b20]">CONTACTAR CON NOSOTROS PARA:</span><br />
             -Contratación de aves, hurones o exóticos.<br />
             -Si la mascota pesa más de 40 kgs.<br />
             ¡¡¡PARA LA CONTRATACIÓN DE LA RUTA CONTACTE CON NOSOTROS!!!
@@ -187,10 +188,10 @@ const portraits = [rudol, mati, laura];
           src={bulldog}
           alt="Bulldog con su correa, preparado para el viaje"
           widths={[360, 600, 800]}
-          sizes="(min-width: 768px) 480px, 80vw"
+          sizes="480px, 80vw"
           class="home-delivery-dog"
         />
-        <div>
+        <div class=" w-[100%] md:w-160 md:ml-10">
           <h2 id="entrega-title" class="home-heading">
             Entrega en<br />toda España
           </h2>
@@ -254,7 +255,7 @@ const portraits = [rudol, mati, laura];
                   <p class="home-review-name">{item.name}</p>
                 </li>
               ))
-            }
+            } 
           </ul>
           <button
             type="button"
@@ -328,4 +329,7 @@ const portraits = [rudol, mati, laura];
       </div>
     </section>
   </div>
+  <a href="#top" class="back-to-top" aria-label="Volver arriba">
+    <Icon name="arrowRight" class="size-6 -rotate-90" />
+  </a>
 </Base>

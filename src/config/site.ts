@@ -37,9 +37,8 @@ export const appLinks = {
 export const navigation = [
   { href: '/', label: 'Inicio' },
   { href: '/#servicio', label: 'Servicio' },
-  { href: '/rutas', label: 'Rutas' },
-  { href: '/tarifas', label: 'Tarifas' },
-  { href: '/contacto', label: 'Contacto' },
+  { href: '/#rutas', label: 'Rutas' },
+  { href: '/#contacto', label: 'Contacto' },
 ] as const
 
 export function whatsappLink(message: string) {
