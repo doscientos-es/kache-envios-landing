@@ -51,9 +51,10 @@ const portraits = [rudol, mati, laura];
             <h1 id="home-title">Kache Envíos</h1>
             <p class="home-tagline">Transporte de mascotas</p>
           </div>
-          <a href={site.phone.href} class="btn btn-primary btn-hero"
-            >Contacta {site.phone.display}</a
-          >
+          <a href={site.phone.href} class="btn btn-primary btn-hero gap-3"
+            >Contacta {site.phone.display}
+            <img src="https://proyectosfba.es/imagenes/telefon_%20blanco.png" alt="" width="20" class="text-white mb-1">
+          </a>
           <ul class="home-social" aria-label="Redes sociales">
             {
               site.social.map((network) => (
@@ -64,7 +65,7 @@ const portraits = [rudol, mati, laura];
                     rel="noopener noreferrer"
                     aria-label={network.name}
                   >
-                    <Icon name={network.icon} class="size-5" />
+                    <Icon name={network.icon} class="size-6" />
                   </a>
                 </li>
               ))
