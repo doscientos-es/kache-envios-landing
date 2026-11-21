@@ -13,3 +13,20 @@ import Icon from './Icon.astro'
 >
   <Icon name="whatsapp" class="size-7" />
 </a>
+
+<style>
+  a{
+    animation: entrar 1s ease-in-out;
+  }
+  @keyframes entrar{
+    0%{
+      opacity: 0;
+      transform: translateX(50px);
+    }100%{
+      opacity:1;
+      transform: translateX(0);
+    }
+
+  }
+</style>
+

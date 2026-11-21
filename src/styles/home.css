@@ -27,7 +27,7 @@
     transform: translateY(-3px);
   }
   &:hover img{
-    animation: movementPhone 1.2s infinite;
+    animation: movementPhone 1s infinite;
   }
 }
 
@@ -91,13 +91,13 @@
   background: #000;
   color: #fff;
   overflow: hidden;
-  padding-block: 2vw 21px;
+  padding-block: 1vw 21px;
 }
 .home-hero-inner {
   display: grid;
   grid-template-columns: 56.7% 37.8%;
   align-items: center;
-  gap: 5.5%;
+  gap: 15%;
 }
 .kache-home .home-hero-inner {
   width: 90%;
@@ -709,7 +709,7 @@ html {
     background: #000;
     color: #fff;
     overflow: hidden;
-    padding-block: 20vw 21px;
+    padding-block: 10vw 21px;
   }
   .home-heading {
     font-size: 60px;
