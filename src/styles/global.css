@@ -58,6 +58,80 @@
   border-radius: 14px;
 }
 
+.route-more-stops summary,
+.route-details-button {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.route-more-stops summary {
+  padding: 0.5rem 0;
+}
+
+.route-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(36rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 0;
+  border-radius: 1.5rem;
+  background: white;
+  color: var(--color-ink);
+  box-shadow: 0 20px 60px #0004;
+}
+
+.route-dialog::backdrop {
+  background: #000a;
+}
+
+.route-dialog-content {
+  display: grid;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.route-dialog-content h2 {
+  padding-right: 2rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.route-dialog-content h3 {
+  font-weight: 700;
+}
+
+.route-dialog-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-cream);
+  cursor: pointer;
+}
+
+.route-dialog-stops {
+  display: grid;
+  gap: 0.4rem;
+  padding-left: 1.5rem;
+  list-style: decimal;
+}
+
+.route-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

@@ -32,6 +32,7 @@ test('routes load on visit, warn on network failures and recover after cache exp
         'import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY': JSON.stringify('test-public-key'),
       },
       server: { middlewareMode: true, hmr: false, ws: false },
+      optimizeDeps: { noDiscovery: true, include: [] },
       logLevel: 'error',
     },
     { configFile: false, fonts: [] },
