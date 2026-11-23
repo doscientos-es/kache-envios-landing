@@ -61,7 +61,7 @@ test('classic cards show one stops button and put the complete itinerary in the 
   assert.equal((card.match(/data-route-details-open/g) ?? []).length, 1)
   assert.match(
     card,
-    /data-route-details-open aria-haspopup="dialog"[^>]*>Ver paradas \(8\)<\/button>/,
+    /data-route-details-open aria-haspopup="dialog"[^>]*>.*<span>Ver paradas y detalles \(8\)<\/span>/,
   )
   assert.doesNotMatch(card, /route-stops-disclosure|route-more-stops|<ol/)
   assert.match(dialog, /<dialog[^>]*aria-label="Detalles de la ruta Norte"/)
@@ -272,7 +272,7 @@ test('default and compact cards show stops only in the details dialog', () => {
   assert.doesNotMatch(html, /data-route-map-toggle|Ocultar mapa/)
   const [card, dialog] = html.split('<template data-route-details>')
   assert.equal((card.match(/data-route-details-open/g) ?? []).length, 1)
-  assert.match(card, />Ver paradas \(8\)<\/button>/)
+  assert.match(card, /<span>Ver paradas y detalles \(8\)<\/span>/)
   assert.doesNotMatch(card, /route-stops-disclosure|route-more-stops|<ol/)
   assert.deepEqual(
     [...dialog.matchAll(/<li>([^<]+)<\/li>/g)].map((match) => match[1]),
