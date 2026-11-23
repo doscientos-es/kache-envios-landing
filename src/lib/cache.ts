@@ -63,3 +63,27 @@ export function revalidate<T>(resource: Resource<T>): Promise<T> {
   inflight.set(resource.key, request)
   return request
 }
+
+/** Show cached data immediately, then refresh it when required. */
+export async function syncResource<T>(
+  resource: Resource<T>,
+  options: {
+    freshMs: number
+    notBefore?: number
+    force?: boolean
+    apply: (data: T) => void
+    onRevalidated?: () => void
+    onError: (error: unknown, hasCache: boolean) => void
+  },
+) {
+  const cached = readCache(resource, options.notBefore)
+  if (cached) options.apply(cached.data)
+  if (!options.force && cached && isFresh(cached, Math.min(options.freshMs, resource.freshMs)))
+    return
+  try {
+    options.apply(await revalidate(resource))
+    options.onRevalidated?.()
+  } catch (error) {
+    options.onError(error, Boolean(cached))
+  }
+}

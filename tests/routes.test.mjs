@@ -11,7 +11,7 @@ const { createServer } = await import(pathToFileURL(require.resolve('vite')).hre
 const config = await getViteConfig(
   {
     resolve: { alias: { '@': fileURLToPath(new URL('../src', import.meta.url)) } },
-    server: { middlewareMode: true },
+    server: { middlewareMode: true, hmr: false, ws: false },
     logLevel: 'error',
   },
   { configFile: false, fonts: [] },
@@ -23,7 +23,9 @@ after(() => server.close())
 
 const { renderRouteCard, renderRouteList, renderRoutesNotice } =
   await server.ssrLoadModule('/src/lib/render.ts')
-const { mapRoute, routePoints, upcomingRoutes } = await server.ssrLoadModule('/src/lib/routes.ts')
+const { googleMapsRouteLinks, mapRoute, routePoints, upcomingRoutes } =
+  await server.ssrLoadModule('/src/lib/routes.ts')
+const { readCache, syncResource } = await server.ssrLoadModule('/src/lib/cache.ts')
 const today = '2026-11-03'
 const route = {
   id: 'route/one',
@@ -85,6 +87,121 @@ test('a map is not offered when any itinerary stop has no coordinates', () => {
   const complete = { ...route, itinerary: ['Córdoba', 'Madrid'] }
   assert.equal(routePoints(complete).length, 2)
   assert.match(renderRouteCard(complete, { today }), /no muestra el trazado por carretera/)
+})
+
+test('Google Maps links cover long routes in order with at most three mobile waypoints', () => {
+  const points = Array.from({ length: 50 }, (_, index) => ({
+    name: `Parada ${index + 1}`,
+    lat: index,
+    lng: -index,
+  }))
+  const links = googleMapsRouteLinks(points)
+  assert.equal(links.length, 13)
+  const visited = []
+  for (const [index, link] of links.entries()) {
+    const params = new URL(link.url).searchParams
+    const waypoints = (params.get('waypoints') ?? '').split('|').filter(Boolean)
+    assert.ok(waypoints.length <= 3)
+    const leg = [params.get('origin'), ...waypoints, params.get('destination')]
+    if (index) assert.equal(leg[0], visited.at(-1))
+    visited.push(...leg.slice(index ? 1 : 0))
+  }
+  assert.deepEqual(
+    visited,
+    points.map((point) => `${point.lat},${point.lng}`),
+  )
+  assert.equal(links.at(-1).to, 'Parada 50')
+})
+
+test('route cache is shown immediately and refreshed on each visit, including concurrent calls', async () => {
+  const values = new Map()
+  globalThis.window = {
+    localStorage: {
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+    },
+  }
+  try {
+    let loads = 0
+    let finish
+    const resource = {
+      key: 'routes-test',
+      freshMs: 300_000,
+      maxAgeMs: 86_400_000,
+      load: () => {
+        loads += 1
+        return new Promise((resolve) => {
+          finish = resolve
+        })
+      },
+    }
+    values.set(
+      'kache-landing:v1:routes-test',
+      JSON.stringify({ savedAt: Date.now(), data: ['cached'] }),
+    )
+    const applied = []
+    const options = {
+      freshMs: Infinity,
+      force: true,
+      apply: (data) => applied.push(data),
+      onError: () => assert.fail(),
+    }
+    const first = syncResource(resource, options)
+    const second = syncResource(resource, options)
+    assert.deepEqual(applied, [['cached'], ['cached']])
+    assert.equal(loads, 1)
+    finish(['updated'])
+    await Promise.all([first, second])
+    assert.deepEqual(applied, [['cached'], ['cached'], ['updated'], ['updated']])
+    assert.deepEqual(readCache(resource).data, ['updated'])
+    await syncResource(resource, { ...options, force: false })
+    assert.equal(loads, 1)
+  } finally {
+    delete globalThis.window
+  }
+})
+
+test('cache failures retain recent data and reject expired data', async () => {
+  const values = new Map()
+  globalThis.window = {
+    localStorage: {
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+    },
+  }
+  try {
+    const resource = {
+      key: 'failure-test',
+      freshMs: 0,
+      maxAgeMs: 1000,
+      load: async () => {
+        throw new Error('offline')
+      },
+    }
+    const seen = []
+    const errors = []
+    const options = {
+      freshMs: 0,
+      apply: (data) => seen.push(data),
+      onError: (_, hasCache) => errors.push(hasCache),
+    }
+    values.set(
+      'kache-landing:v1:failure-test',
+      JSON.stringify({ savedAt: Date.now(), data: ['saved'] }),
+    )
+    await syncResource(resource, options)
+    assert.deepEqual(seen, [['saved']])
+    assert.deepEqual(errors, [true])
+    values.set(
+      'kache-landing:v1:failure-test',
+      JSON.stringify({ savedAt: Date.now() - 2000, data: ['expired'] }),
+    )
+    await syncResource(resource, options)
+    assert.deepEqual(seen, [['saved']])
+    assert.deepEqual(errors, [true, false])
+  } finally {
+    delete globalThis.window
+  }
 })
 
 test('upcoming departures are ordered by date without mutating the original list', () => {

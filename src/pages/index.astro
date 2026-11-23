@@ -22,14 +22,10 @@ import {
 import { appLinks, site } from "@/config/site";
 import Base from "@/layouts/Base.astro";
 import { fetchBoxCatalogSafe } from "@/lib/catalog";
-import { fetchPublicRoutesSafe } from "@/lib/routes";
 
 import "@/styles/home.css";
 
-const [routes, boxes] = await Promise.all([
-  fetchPublicRoutesSafe(),
-  fetchBoxCatalogSafe(),
-]);
+const boxes = await fetchBoxCatalogSafe();
 const portraits = [rudol, mati, laura];
 ---
 
@@ -156,13 +152,13 @@ const portraits = [rudol, mati, laura];
       <div class="container-page">
         <h2 id="rutas-title" class="home-heading">Próximas rutas</h2>
         <LiveRoutes
-          routes={routes}
+          routes={null}
           limit={3}
           appearance="classic"
           class="home-route-list"
         />
-        <a href="/rutas" class="home-all-routes"
-          >Ver todas las rutas y puntos de encuentro <Icon
+        <a href="/rutas/" class="home-all-routes"
+          >Ver todas las rutas <Icon
             name="arrowRight"
             class="size-4"
           /></a
