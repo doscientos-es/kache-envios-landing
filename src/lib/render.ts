@@ -16,8 +16,6 @@ import {
 import { iconSvg } from './icons'
 import { googleMapsRouteLinks, normalizeSearch, routePoints, type PublicRoute } from './routes'
 
-const VISIBLE_STOPS = 5
-
 export type RouteCardOptions = {
   today: string
   compact?: boolean
@@ -55,21 +53,6 @@ function renderRouteMap(route: PublicRoute) {
     </div>`
 }
 
-function renderStops(stops: string[], classic: boolean) {
-  if (!stops.length) return ''
-  const item = (stop: string, index: number) =>
-    classic
-      ? `<li><span class="classic-route-stop-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${escapeHtml(stop)}</li>`
-      : `<li class="chip">${escapeHtml(stop)}</li>`
-  const listClass = classic ? 'classic-route-stops' : 'flex flex-wrap gap-1.5'
-  const visible = stops.slice(0, VISIBLE_STOPS).map(item).join('')
-  const remaining = stops.slice(VISIBLE_STOPS)
-  const extra = remaining.length
-    ? `<details class="route-more-stops"><summary>Ver ${remaining.length} ${remaining.length === 1 ? 'parada' : 'paradas'} más</summary><ol class="${listClass}" start="${VISIBLE_STOPS + 1}" aria-label="Más paradas de la ruta">${remaining.map((stop, index) => item(stop, index + VISIBLE_STOPS)).join('')}</ol></details>`
-    : ''
-  return `<details class="route-stops-disclosure"><summary><span class="route-stops-show">Ver paradas</span><span class="route-stops-hide">Ocultar paradas</span> (${stops.length})</summary><ol class="${listClass}" aria-label="Paradas de la ruta">${visible}</ol>${extra}</details>`
-}
-
 export function renderRouteCard(
   route: PublicRoute,
   { today, appearance = 'default' }: RouteCardOptions,
@@ -95,13 +78,13 @@ export function renderRouteCard(
       <p>${escapeHtml(routeDaysLabel(route.serviceDate, route.endDate))}${route.reverse ? ' · sentido inverso' : ''}</p>
       <p>${departure}</p>
       <h3>Recorrido completo</h3>
-      <ol class="route-dialog-stops">${itinerary.map((stop) => `<li>${escapeHtml(stop)}</li>`).join('')}</ol>
+      ${itinerary.length ? `<ol class="route-dialog-stops">${itinerary.map((stop) => `<li>${escapeHtml(stop)}</li>`).join('')}</ol>` : '<p>Paradas pendientes de confirmar.</p>'}
       ${map ? '<p>El mapa une las paradas de forma orientativa; no muestra el trazado por carretera.</p>' : ''}
       <p>Consulte precios según mascota. Los horarios y puntos exactos se confirman al cerrar cada ruta.</p>
       <div class="route-dialog-actions"><a class="btn btn-primary" href="${bookingUrl}">Reservar plaza</a><a class="btn btn-outline" href="${contactUrl}" target="_blank" rel="noopener">Contactar por WhatsApp</a></div>
     </div>
   </dialog></template>`
-  const detailsButton = `<button type="button" class="route-details-button" data-route-details-open>Ver detalles de la ruta</button>`
+  const detailsButton = `<button type="button" class="route-details-button" data-route-details-open aria-haspopup="dialog" aria-label="Ver paradas y detalles de la ruta ${escapeHtml(route.name)}">Ver paradas${itinerary.length ? ` (${itinerary.length})` : ''}</button>`
   const mapContent = map || '<p class="text-sm text-muted">Mapa no disponible para esta ruta.</p>'
 
   if (appearance === 'classic') {
@@ -111,7 +94,6 @@ export function renderRouteCard(
         <h3 class="classic-route-title">Ruta ${escapeHtml(routeDaysLabel(route.serviceDate, route.endDate))}</h3>
         <p class="classic-route-name">${escapeHtml(route.name)}${route.reverse ? ' · sentido inverso' : ''}</p>
         <p class="classic-route-base">${departure}</p>
-        ${renderStops(itinerary, true)}
         ${detailsButton}
         <p class="classic-route-price">Consulte precios según mascota</p>
         <footer class="classic-route-actions">
@@ -138,7 +120,6 @@ export function renderRouteCard(
         <p class="mt-1 flex items-center gap-1.5 text-sm text-ink-soft">${iconSvg('mapPin', 'size-4 shrink-0 text-brand')}${departure}${route.reverse ? ' · sentido inverso' : ''}</p>
       </div>
     </header>
-    ${renderStops(route.stops, false)}
     ${detailsButton}
     <footer class="mt-auto flex flex-wrap gap-2 pt-1">
       <a class="btn btn-primary flex-1" href="${bookingUrl}">Reservar plaza ${iconSvg('arrowRight', 'size-4')}</a>

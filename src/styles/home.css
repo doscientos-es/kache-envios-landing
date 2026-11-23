@@ -364,27 +364,8 @@
   font-size: 0.8rem;
   text-align: center;
 }
-.classic-route .route-stops-disclosure {
-  text-align: center;
-}
-.classic-route-stops {
-  display: grid;
-  gap: 0.4rem;
-  padding-block: 0.75rem;
-  font-size: 0.8rem;
-  text-align: left;
-}
-.classic-route-stops li {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  border-bottom: 1px solid #0000001a;
-  padding-bottom: 0.3rem;
-}
-.classic-route-stop-number {
-  color: var(--color-brand-700);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+.classic-route .route-details-button {
+  align-self: center;
 }
 .classic-route-base {
   font-size: 0.75rem;
