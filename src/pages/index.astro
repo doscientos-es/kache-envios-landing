@@ -51,10 +51,15 @@ const portraits = [rudol, mati, laura];
             <h1 id="home-title">Kache Envíos</h1>
             <p class="home-tagline">Transporte de mascotas</p>
           </div>
-          <a href={site.phone.href} class="btn btn-primary btn-hero gap-3"
-            >Contacta {site.phone.display}
-            <img src="https://proyectosfba.es/imagenes/telefon_%20blanco.png" alt="" width="20" class="text-white mb-1">
-          </a>
+          <div class="home-btn-group">
+            <a href={site.phone.href} class="btn btn-primary btn-hero gap-3"
+              >Reserva tu plaza
+            </a>
+            <a href={site.phone.href} class="btn btn-primary btn-phone gap-3"
+              >
+              <img src="https://proyectosfba.es/imagenes/telefon_%20blanco.png" alt="" width="20" class="text-white">
+            </a>
+          </div>
           <ul class="home-social" aria-label="Redes sociales">
             {
               site.social.map((network) => (
@@ -192,7 +197,7 @@ const portraits = [rudol, mati, laura];
           sizes="480px, 80vw"
           class="home-delivery-dog"
         />
-        <div class=" w-[100%] md:w-160 md:ml-10">
+        <div class=" w-[100%] md:max-w-160 md:ml-10">
           <h2 id="entrega-title" class="home-heading">
             Entrega en<br />toda España
           </h2>
