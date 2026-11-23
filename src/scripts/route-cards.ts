@@ -1,6 +1,6 @@
 /** Cards are replaced during revalidation, so interactions are delegated. */
-document.addEventListener('click', (event) => {
-  const target = event.target
+document.addEventListener('click', (cardClick) => {
+  const target = cardClick.target
   if (!(target instanceof Element)) return
 
   const close = target.closest('[data-route-dialog-close]')
@@ -26,6 +26,24 @@ document.addEventListener('click', (event) => {
   if (!dialog) return
   button.focus()
   document.body.append(dialog)
+  const isBackdrop = (event: PointerEvent | MouseEvent) => {
+    if (event.target !== dialog) return false
+    const rect = dialog.getBoundingClientRect()
+    return (
+      event.clientX < rect.left ||
+      event.clientX > rect.right ||
+      event.clientY < rect.top ||
+      event.clientY > rect.bottom
+    )
+  }
+  let pressedBackdrop = false
+  dialog.addEventListener('pointerdown', (event) => {
+    pressedBackdrop = event.button === 0 && isBackdrop(event)
+  })
+  dialog.addEventListener('click', (event) => {
+    if (pressedBackdrop && isBackdrop(event)) dialog.close()
+    pressedBackdrop = false
+  })
   dialog.addEventListener(
     'close',
     () => {

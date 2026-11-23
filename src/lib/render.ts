@@ -65,6 +65,7 @@ function renderRouteMap(route: PublicRoute) {
 }
 
 function renderStops(stops: string[], classic: boolean) {
+  if (!stops.length) return ''
   const item = (stop: string, index: number) =>
     classic
       ? `<li><span class="classic-route-stop-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${escapeHtml(stop)}</li>`
@@ -75,7 +76,7 @@ function renderStops(stops: string[], classic: boolean) {
   const extra = remaining.length
     ? `<details class="route-more-stops"><summary>Ver ${remaining.length} ${remaining.length === 1 ? 'parada' : 'paradas'} más</summary><ol class="${listClass}" start="${VISIBLE_STOPS + 1}" aria-label="Más paradas de la ruta">${remaining.map((stop, index) => item(stop, index + VISIBLE_STOPS)).join('')}</ol></details>`
     : ''
-  return `<ol class="${listClass}" aria-label="Paradas de la ruta">${visible}</ol>${extra}`
+  return `<details class="route-stops-disclosure"><summary><span class="route-stops-show">Ver paradas</span><span class="route-stops-hide">Ocultar paradas</span> (${stops.length})</summary><ol class="${listClass}" aria-label="Paradas de la ruta">${visible}</ol>${extra}</details>`
 }
 
 export function renderRouteCard(
