@@ -47,6 +47,7 @@ export async function fetchBoxCatalog(): Promise<BoxItem[]> {
     'transport_box_catalog',
     'select=category,label,amount_cents,large_amount_cents,dimensions,next_box_from_kg,sort_order&order=sort_order.asc',
   )
+  if (!Array.isArray(rows) || !rows.length) throw new Error('El catálogo de tarifas está vacío')
   return rows.map(mapBox)
 }
 
