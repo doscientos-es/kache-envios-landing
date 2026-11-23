@@ -68,7 +68,7 @@ test('delegated card and map interactions survive route updates', async () => {
   )
   const listeners = new Map()
   let panels = []
-  let selection = ''
+  let reducedMotion = false
   let observer
   let currentDialog
   class FakeElement {
@@ -92,6 +92,9 @@ test('delegated card and map interactions survive route updates', async () => {
   const button = {
     isConnected: true,
     focusCount: 0,
+    closest(selector) {
+      return selector === '[data-route-card]' ? card : null
+    },
     focus() {
       this.focusCount++
     },
@@ -99,12 +102,16 @@ test('delegated card and map interactions survive route updates', async () => {
   const dialogTemplate = {
     cloneNode() {
       return {
+        dataset: {},
         showModal() {
           this.open = true
         },
         addEventListener(type, listener) {
           this.handlers ??= {}
           this.handlers[type] = listener
+        },
+        removeEventListener(type, listener) {
+          if (this.handlers[type] === listener) delete this.handlers[type]
         },
         getBoundingClientRect() {
           return { left: 100, right: 300, top: 100, bottom: 300 }
@@ -141,7 +148,11 @@ test('delegated card and map interactions survive route updates', async () => {
         this.observed.delete(panel)
       }
     }
-    globalThis.window = { getSelection: () => ({ toString: () => selection }) }
+    globalThis.window = {
+      matchMedia: () => ({ matches: reducedMotion }),
+      setTimeout,
+      clearTimeout,
+    }
     globalThis.document = {
       readyState: 'complete',
       addEventListener(type, listener) {
@@ -192,20 +203,26 @@ test('delegated card and map interactions survive route updates', async () => {
     fire('click', interactive)
     assert.equal(currentDialog, undefined)
     const cardClick = new FakeElement({ '[data-route-card]': card })
-    selection = 'texto seleccionado'
     fire('click', cardClick)
     assert.equal(currentDialog, undefined)
-    selection = ''
-    fire('click', cardClick)
-    assert.equal(currentDialog.open, true)
-    const close = new FakeElement({ '[data-route-dialog-close]': { closest: () => currentDialog } })
-    fire('click', close)
-    assert.equal(currentDialog.removed, true)
-    assert.equal(button.focusCount, 2)
     const openButton = new FakeElement({
-      '[data-route-card]': card,
       '[data-route-details-open]': button,
     })
+    fire('click', openButton)
+    assert.equal(currentDialog.open, true)
+    const close = new FakeElement({ '[data-route-dialog-close]': {} })
+    currentDialog.handlers.click({ target: close })
+    assert.equal(currentDialog.dataset.closing, 'true')
+    assert.equal(currentDialog.open, true)
+    currentDialog.handlers.animationend({ target: currentDialog, animationName: 'route-dialog-in' })
+    assert.equal(currentDialog.open, true)
+    currentDialog.handlers.animationend({
+      target: currentDialog,
+      animationName: 'route-dialog-out',
+    })
+    assert.equal(currentDialog.removed, true)
+    assert.equal(button.focusCount, 1)
+
     fire('click', openButton)
     assert.equal(currentDialog.open, true)
     const pointer = (type, x, y, target = currentDialog) => {
@@ -222,11 +239,38 @@ test('delegated card and map interactions survive route updates', async () => {
     assert.equal(currentDialog.open, true)
     pointer('pointerdown', 50, 50)
     pointer('click', 50, 50)
+    assert.equal(currentDialog.dataset.closing, 'true')
+    currentDialog.handlers.animationend({
+      target: currentDialog,
+      animationName: 'route-dialog-out',
+    })
     assert.equal(currentDialog.removed, true)
-    assert.equal(button.focusCount, 4)
+    assert.equal(button.focusCount, 2)
     fire('click', openButton)
     assert.equal(currentDialog.open, true)
-    currentDialog.close()
+    let prevented = false
+    currentDialog.handlers.cancel({
+      preventDefault: () => {
+        prevented = true
+      },
+    })
+    assert.equal(prevented, true)
+    assert.equal(currentDialog.dataset.closing, 'true')
+    currentDialog.handlers.animationend({
+      target: currentDialog,
+      animationName: 'route-dialog-out',
+    })
+    assert.equal(currentDialog.removed, true)
+
+    reducedMotion = true
+    fire('click', openButton)
+    currentDialog.handlers.click({ target: close })
+    assert.equal(currentDialog.removed, true)
+
+    reducedMotion = false
+    fire('click', openButton)
+    currentDialog.handlers.click({ target: close })
+    await new Promise((resolve) => setTimeout(resolve, 350))
     assert.equal(currentDialog.removed, true)
 
     panel.isConnected = false

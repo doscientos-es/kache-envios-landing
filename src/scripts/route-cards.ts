@@ -3,29 +3,35 @@ document.addEventListener('click', (cardClick) => {
   const target = cardClick.target
   if (!(target instanceof Element)) return
 
-  const close = target.closest('[data-route-dialog-close]')
-  if (close) {
-    close.closest('dialog')?.close()
-    return
-  }
-
-  const card = target.closest<HTMLElement>('[data-route-card]')
-  if (!card) return
-  const button = card.querySelector<HTMLButtonElement>('[data-route-details-open]')
-  if (!button) return
-  if (!target.closest('[data-route-details-open]')) {
-    if (target.closest('a, button, summary, details, input, select, textarea, [data-route-map]'))
-      return
-    if (window.getSelection()?.toString()) return
-  }
+  const button = target.closest<HTMLButtonElement>('[data-route-details-open]')
+  const card = button?.closest<HTMLElement>('[data-route-card]')
+  if (!button || !card) return
 
   const template = card.querySelector<HTMLTemplateElement>('template[data-route-details]')
   const dialog = template?.content.firstElementChild?.cloneNode(true) as
     | HTMLDialogElement
     | undefined
   if (!dialog) return
-  button.focus()
   document.body.append(dialog)
+  let closeTimer: number | undefined
+  const finishClose = () => {
+    window.clearTimeout(closeTimer)
+    dialog.removeEventListener('animationend', onAnimationEnd)
+    if (dialog.open) dialog.close()
+  }
+  const onAnimationEnd = (event: AnimationEvent) => {
+    if (event.target === dialog && event.animationName === 'route-dialog-out') finishClose()
+  }
+  const closeDialog = () => {
+    if (!dialog.open || dialog.dataset.closing) return
+    if (!window.matchMedia || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      dialog.close()
+      return
+    }
+    dialog.dataset.closing = 'true'
+    dialog.addEventListener('animationend', onAnimationEnd)
+    closeTimer = window.setTimeout(finishClose, 300)
+  }
   const isBackdrop = (event: PointerEvent | MouseEvent) => {
     if (event.target !== dialog) return false
     const rect = dialog.getBoundingClientRect()
@@ -41,12 +47,23 @@ document.addEventListener('click', (cardClick) => {
     pressedBackdrop = event.button === 0 && isBackdrop(event)
   })
   dialog.addEventListener('click', (event) => {
-    if (pressedBackdrop && isBackdrop(event)) dialog.close()
+    const eventTarget = event.target
+    if (
+      (eventTarget instanceof Element && eventTarget.closest('[data-route-dialog-close]')) ||
+      (pressedBackdrop && isBackdrop(event))
+    )
+      closeDialog()
     pressedBackdrop = false
+  })
+  dialog.addEventListener('cancel', (event) => {
+    event.preventDefault()
+    closeDialog()
   })
   dialog.addEventListener(
     'close',
     () => {
+      window.clearTimeout(closeTimer)
+      dialog.removeEventListener('animationend', onAnimationEnd)
       dialog.remove()
       if (button.isConnected) button.focus()
     },
