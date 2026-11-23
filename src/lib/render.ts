@@ -84,7 +84,8 @@ export function renderRouteCard(
       <div class="route-dialog-actions"><a class="btn btn-primary" href="${bookingUrl}">Reservar plaza</a><a class="btn btn-outline" href="${contactUrl}" target="_blank" rel="noopener">Contactar por WhatsApp</a></div>
     </div>
   </dialog></template>`
-  const detailsButton = `<button type="button" class="route-details-button" data-route-details-open aria-haspopup="dialog" aria-label="Ver paradas y detalles de la ruta ${escapeHtml(route.name)}">${iconSvg('route', 'size-5 shrink-0')}<span>Ver paradas y detalles${itinerary.length ? ` (${itinerary.length})` : ''}</span>${iconSvg('arrowRight', 'size-4 shrink-0')}</button>`
+  const detailsLabel = `Ver paradas y detalles${itinerary.length ? ` (${itinerary.length})` : ''}`
+  const detailsButton = `<button type="button" class="route-details-button" data-route-details-open aria-haspopup="dialog" aria-label="${detailsLabel} de la ruta ${escapeHtml(route.name)}">${iconSvg('route', 'size-5 shrink-0')}<span>${detailsLabel}</span>${iconSvg('arrowRight', 'size-4 shrink-0')}</button>`
   const mapContent = map || '<p class="text-sm text-muted">Mapa no disponible para esta ruta.</p>'
 
   if (appearance === 'classic') {

@@ -61,7 +61,7 @@ test('classic cards show one stops button and put the complete itinerary in the 
   assert.equal((card.match(/data-route-details-open/g) ?? []).length, 1)
   assert.match(
     card,
-    /data-route-details-open aria-haspopup="dialog"[^>]*>.*<span>Ver paradas y detalles \(8\)<\/span>/,
+    /data-route-details-open aria-haspopup="dialog" aria-label="Ver paradas y detalles \(8\) de la ruta Norte">.*<span>Ver paradas y detalles \(8\)<\/span>/,
   )
   assert.doesNotMatch(card, /route-stops-disclosure|route-more-stops|<ol/)
   assert.match(dialog, /<dialog[^>]*aria-label="Detalles de la ruta Norte"/)
