@@ -84,11 +84,7 @@ test('delegated card and map interactions survive route updates', async () => {
   }
   const map = {
     removed: false,
-    invalidations: 0,
     fitBounds() {},
-    invalidateSize() {
-      this.invalidations++
-    },
     remove() {
       this.removed = true
     },
@@ -181,25 +177,13 @@ test('delegated card and map interactions survive route updates', async () => {
     assert.equal(panel.dataset.loading, undefined)
     assert.equal(panel.innerHTML, '')
 
-    const label = { textContent: '' }
-    const box = { querySelector: (selector) => (selector === '[data-route-map]' ? panel : label) }
-    const toggle = new FakeElement({ '[data-route-map-box]': box })
-    toggle.setAttribute = (name, value) => {
-      toggle[name] = value
-    }
     const mapClick = new FakeElement({
-      '[data-route-map-toggle]': toggle,
       '[data-route-card]': card,
-      'a, button, summary, details, input, select, textarea, [data-route-map]': toggle,
+      'a, button, summary, details, input, select, textarea, [data-route-map]': panel,
     })
     fire('click', mapClick)
-    assert.equal(panel.hidden, true)
-    assert.equal(toggle['aria-expanded'], 'false')
-    assert.equal(currentDialog, undefined)
-    fire('click', mapClick)
     assert.equal(panel.hidden, false)
-    assert.equal(toggle['aria-expanded'], 'true')
-    assert.equal(map.invalidations, 1)
+    assert.equal(currentDialog, undefined)
 
     const interactive = new FakeElement({
       '[data-route-card]': card,

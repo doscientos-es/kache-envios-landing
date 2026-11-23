@@ -2,9 +2,6 @@
  * HTML renderers shared by the static build and the in-browser refresh, so live data
  * always looks identical to the prerendered markup.
  */
-import dogWalker from '@/assets/images/dog-walker.jpg'
-import cat from '@/assets/images/gato.jpg'
-import dog from '@/assets/images/perro-envios.jpg'
 import { appLinks, whatsappLink } from '@/config/site'
 
 import { boxAudience, type BoxItem } from './catalog'
@@ -26,8 +23,6 @@ export type RouteCardOptions = {
   compact?: boolean
   appearance?: 'default' | 'classic'
 }
-
-const routePhotos = [cat, dog, dogWalker]
 
 /** Visible Leaflet panel (loaded when in view) and a direct Google Maps link. */
 function renderRouteMap(route: PublicRoute) {
@@ -55,12 +50,8 @@ function renderRouteMap(route: PublicRoute) {
       </details>`
         : ''
   return `<div class="flex flex-col gap-3" data-route-map-box>
-      <div class="flex flex-wrap items-start gap-2">
-        <button type="button" class="${buttonClass}" data-route-map-toggle aria-expanded="true" aria-label="Mostrar u ocultar el mapa de la ruta ${label}">${iconSvg('route', 'size-4')}<span data-route-map-label>Ocultar mapa</span></button>
-        ${mapsControl}
-      </div>
       <div class="route-map h-72 w-full overflow-hidden rounded-2xl bg-cream ring-1 ring-ink/10" data-route-map data-points="${escapeHtml(JSON.stringify(points))}" role="region" aria-label="Mapa del recorrido de la ruta ${label}"><p class="grid h-full place-items-center text-sm text-muted">Cargando mapa…</p></div>
-      <p class="text-xs text-muted">El mapa une las paradas de forma orientativa; no muestra el trazado por carretera.</p>
+      ${mapsControl ? `<div class="route-map-links flex flex-wrap items-start gap-2">${mapsControl}</div>` : ''}
     </div>`
 }
 
@@ -82,7 +73,6 @@ function renderStops(stops: string[], classic: boolean) {
 export function renderRouteCard(
   route: PublicRoute,
   { today, appearance = 'default' }: RouteCardOptions,
-  photoIndex = 0,
 ) {
   const date = dateParts(route.serviceDate)
   const days = daysBetween(today, route.serviceDate)
@@ -106,25 +96,22 @@ export function renderRouteCard(
       <p>${departure}</p>
       <h3>Recorrido completo</h3>
       <ol class="route-dialog-stops">${itinerary.map((stop) => `<li>${escapeHtml(stop)}</li>`).join('')}</ol>
+      ${map ? '<p>El mapa une las paradas de forma orientativa; no muestra el trazado por carretera.</p>' : ''}
       <p>Consulte precios según mascota. Los horarios y puntos exactos se confirman al cerrar cada ruta.</p>
       <div class="route-dialog-actions"><a class="btn btn-primary" href="${bookingUrl}">Reservar plaza</a><a class="btn btn-outline" href="${contactUrl}" target="_blank" rel="noopener">Contactar por WhatsApp</a></div>
     </div>
   </dialog></template>`
   const detailsButton = `<button type="button" class="route-details-button" data-route-details-open>Ver detalles de la ruta</button>`
+  const mapContent = map || '<p class="text-sm text-muted">Mapa no disponible para esta ruta.</p>'
 
   if (appearance === 'classic') {
-    const photo = routePhotos[photoIndex % routePhotos.length]
     return `<article class="classic-route" data-route-card data-search="${escapeHtml(search)}">
-      <img class="classic-route-photo" src="${escapeHtml(photo.src)}" alt="" width="${photo.width}" height="${photo.height}" loading="lazy" />
       <div class="classic-route-body">
+        <div class="classic-route-map">${mapContent}</div>
         <h3 class="classic-route-title">Ruta ${escapeHtml(routeDaysLabel(route.serviceDate, route.endDate))}</h3>
         <p class="classic-route-name">${escapeHtml(route.name)}${route.reverse ? ' · sentido inverso' : ''}</p>
-        <div class="classic-route-poster">
-          <p class="classic-route-poster-heading">Kache Envíos<br />Transporte de mascotas</p>
-          ${renderStops(itinerary, true)}
-          <p class="classic-route-base">${departure}</p>
-        </div>
-        <div class="classic-route-map">${map}</div>
+        <p class="classic-route-base">${departure}</p>
+        ${renderStops(itinerary, true)}
         ${detailsButton}
         <p class="classic-route-price">Consulte precios según mascota</p>
         <footer class="classic-route-actions">
@@ -139,6 +126,7 @@ export function renderRouteCard(
   return `<article class="card group relative flex h-full flex-col overflow-hidden" data-route-card data-search="${escapeHtml(search)}" style="--route:${route.color}">
   <div class="h-2 bg-(--route)" aria-hidden="true"></div>
   <div class="flex flex-1 flex-col gap-5 p-6">
+    ${mapContent}
     <header class="flex items-start gap-4">
       <div class="grid w-16 shrink-0 place-items-center rounded-2xl bg-(--route)/45 py-2 text-center ring-1 ring-ink/5">
         <span class="text-2xl leading-none font-extrabold tabular-nums">${date.day}</span>
@@ -151,7 +139,6 @@ export function renderRouteCard(
       </div>
     </header>
     ${renderStops(route.stops, false)}
-    ${map}
     ${detailsButton}
     <footer class="mt-auto flex flex-wrap gap-2 pt-1">
       <a class="btn btn-primary flex-1" href="${bookingUrl}">Reservar plaza ${iconSvg('arrowRight', 'size-4')}</a>
@@ -163,7 +150,7 @@ export function renderRouteCard(
 }
 
 export function renderRouteList(routes: PublicRoute[], options: RouteCardOptions) {
-  return routes.map((route, index) => `<li>${renderRouteCard(route, options, index)}</li>`).join('')
+  return routes.map((route) => `<li>${renderRouteCard(route, options)}</li>`).join('')
 }
 
 export function renderRoutesNotice(kind: 'empty' | 'error') {

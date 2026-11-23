@@ -23,36 +23,36 @@
   font-size: 18px;
   line-height: 1.7;
   box-shadow: 0px 8px 13px rgba(184, 78, 78, 0.3);
-  &:hover{
+  &:hover {
     transform: translateY(-3px);
   }
-  &:hover img{
+  &:hover img {
     animation: movementPhone 1s infinite;
   }
 }
 
 @keyframes movementPhone {
-    0%{
-      transform: rotate(-20deg);
-    }
-    20%{
-      transform: rotate(20deg);
-    }
-    40%{
-      transform: rotate(-20deg);
-    }
-    60%{
-      transform: rotate(20deg);
-    }
-    70%{
-      transform: rotate(0deg);
-    }
-    100%{
-      transform: rotate(0deg);
-    }
+  0% {
+    transform: rotate(-20deg);
+  }
+  20% {
+    transform: rotate(20deg);
+  }
+  40% {
+    transform: rotate(-20deg);
+  }
+  60% {
+    transform: rotate(20deg);
+  }
+  70% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
-.home-btn-group{
+.home-btn-group {
   display: flex;
   flex-direction: row;
   gap: 3%;
@@ -61,7 +61,7 @@
   margin-right: 100px;
 }
 
-.btn-phone{
+.btn-phone {
   border-radius: 50%;
   padding: 10px;
 }
@@ -76,7 +76,7 @@
 
 .kache-home .btn-phone img {
   width: 22px;
-  height: 22px;   
+  height: 22px;
 }
 
 .kache-home h2,
@@ -104,8 +104,8 @@
   font-size: 51px;
   line-height: 1.2;
 }
-.home-phone{
-  font-family: "Monotype Corsiva", cursive;
+.home-phone {
+  font-family: 'Monotype Corsiva', cursive;
   color: rgb(107, 107, 107);
   font-size: 26px;
 }
@@ -350,21 +350,11 @@
   padding: 0 30px;
   box-shadow: 0 2px 18px #0005;
 }
-.classic-route-photo {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 65px;
-  margin-top: -47px;
-  box-shadow: 26px 26px 68px -16px #0005;
-}
 .classic-route-body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 56px 0 20px;
+  padding: 30px 0 20px;
 }
 .classic-route-title {
   font: 700 39px/1.2 var(--font-display);
@@ -374,34 +364,25 @@
   font-size: 0.8rem;
   text-align: center;
 }
-.classic-route-poster {
-  padding: 1rem 0.8rem;
-  background: #000;
-  color: #fff;
-}
-.classic-route-poster-heading {
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--color-brand);
-  color: #ff525b;
-  font-weight: 700;
+.classic-route .route-stops-disclosure {
   text-align: center;
-  text-transform: uppercase;
 }
 .classic-route-stops {
   display: grid;
   gap: 0.4rem;
   padding-block: 0.75rem;
   font-size: 0.8rem;
+  text-align: left;
 }
 .classic-route-stops li {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  border-bottom: 1px solid #ffffff26;
+  border-bottom: 1px solid #0000001a;
   padding-bottom: 0.3rem;
 }
 .classic-route-stop-number {
-  color: #ff525b;
+  color: var(--color-brand-700);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -412,7 +393,7 @@
 .classic-route-map {
   font-size: 0.75rem;
 }
-.classic-route-map [data-route-map-box] > div:first-child {
+.classic-route-map .route-map-links {
   justify-content: center;
 }
 .classic-route-map a,
@@ -455,7 +436,7 @@
 .home-delivery-dog {
   align-self: start;
   width: 600px;
-  max-width: none; 
+  max-width: none;
   margin-top: -14vw;
   margin-left: -10vw;
   object-fit: contain;
@@ -635,7 +616,6 @@
   text-decoration: underline;
 }
 
-
 html {
   scroll-behavior: smooth;
 }
@@ -684,38 +664,40 @@ html {
 }
 
 @keyframes entrarLeft {
-  0%{
+  0% {
     opacity: 0;
     transform: translateX(-60px);
-  }100%{
+  }
+  100% {
     opacity: 1;
     transform: translateX(0);
   }
 }
 
 @keyframes entrarBottom {
-  0%{
+  0% {
     opacity: 0;
     transform: translateY(-30px);
-  }100%{
+  }
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
 
 @keyframes entrarRight {
-  0%{
+  0% {
     opacity: 0;
     transform: translateX(30px);
-  }100%{
+  }
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-@media (max-width: 1475px){
-  .home-hero-inner{
+@media (max-width: 1475px) {
+  .home-hero-inner {
     gap: 5%;
   }
 }
@@ -799,9 +781,6 @@ html {
   .home-route-list [data-routes-list] > li:nth-child(odd) {
     margin-top: 0;
   }
-  .classic-route-photo {
-    margin-top: 0;
-  }
   .home-route-info {
     width: 95%;
   }
@@ -835,7 +814,7 @@ html {
   }
 }
 @media (max-width: 767px) {
-    .home-hero {
+  .home-hero {
     padding-block: 28vw 32px;
   }
   .home-hero-inner {
@@ -872,7 +851,7 @@ html {
   .kache-home .home-routes > .container-page {
     width: 100%;
   }
- 
+
   .home-heading,
   .home-routes .home-heading {
     font-size: 51px;
@@ -889,25 +868,25 @@ html {
   .home-transport-note {
     width: 90%;
   }
-  .home-route-info{
+  .home-route-info {
     font-size: 15px;
   }
-  .home-route-info span{
+  .home-route-info span {
     font-size: 25px;
   }
   .home-hero-inner {
     grid-template-columns: 1fr;
   }
-  .home-how{
+  .home-how {
     border-top: 1px solid;
   }
-  .home-steps{
-    border-top: 1px dashed ;
+  .home-steps {
+    border-top: 1px dashed;
     box-sizing: border-box;
     padding-top: 50px;
     width: 300px;
   }
-  .home-note{
+  .home-note {
     width: 100%;
     margin-top: 30px;
   }
@@ -952,7 +931,7 @@ html {
     padding-block: 50px 48px;
     text-align: center;
   }
-  .kache-home .btn-primary{
+  .kache-home .btn-primary {
     margin: 0 0;
     width: 260px;
     font-size: 15px;
