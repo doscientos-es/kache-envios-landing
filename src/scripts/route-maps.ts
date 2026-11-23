@@ -1,6 +1,6 @@
 /**
  * Route maps are visible by default. Leaflet loads when a map enters the viewport.
- * Cards are re-rendered by `live-data.ts`, so controls use event delegation.
+ * Cards are re-rendered by `live-data.ts`, so maps are registered after each update.
  */
 import type { RoutePoint } from '@/lib/routes'
 
@@ -124,22 +124,6 @@ function registerMaps() {
     else void initializeMap(panel)
   }
 }
-
-document.addEventListener('click', (event) => {
-  const toggle = (event.target as Element | null)?.closest('[data-route-map-toggle]')
-  const box = toggle?.closest<HTMLElement>('[data-route-map-box]')
-  const panel = box?.querySelector<HTMLElement>('[data-route-map]')
-  if (!box || !panel || !toggle) return
-  panel.hidden = !panel.hidden
-  toggle.setAttribute('aria-expanded', String(!panel.hidden))
-  const label = box.querySelector<HTMLElement>('[data-route-map-label]')
-  if (label) label.textContent = panel.hidden ? 'Ver mapa' : 'Ocultar mapa'
-  if (!panel.hidden) {
-    const map = maps.get(panel)
-    if (map) map.invalidateSize()
-    else void initializeMap(panel)
-  }
-})
 
 document.addEventListener('routes:updated', registerMaps)
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', registerMaps)
