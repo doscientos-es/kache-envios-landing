@@ -6,7 +6,7 @@ import { upcomingRoutes, type PublicRoute } from "@/lib/routes";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
 type Props = {
-  /** `null` when the build could not reach Supabase: the browser fills it in. */
+  /** `null` when routes will be loaded in the browser. */
   routes: PublicRoute[] | null;
   limit?: number;
   compact?: boolean;
@@ -46,6 +46,9 @@ const loading = !routes && isSupabaseConfigured;
     set:html={listHtml}
   />
   <div data-routes-notice set:html={noticeHtml} />
+  <p class="mt-3 text-sm text-ink-soft" data-routes-stale hidden role="status">
+    No hemos podido actualizar las rutas. Mostramos información guardada; confirma la disponibilidad antes de reservar.
+  </p>
   {
     loading && (
       <div

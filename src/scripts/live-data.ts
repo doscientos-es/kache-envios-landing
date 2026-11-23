@@ -1,22 +1,27 @@
 /**
- * Keeps prerendered routes and prices in sync with the internal app, without real time:
- * the static HTML shows first, newer cached data replaces it, and Supabase is only queried
- * when that data is missing or stale. Coming back to the tab revalidates stale data.
+ * Loads routes on each page visit, displaying cached data immediately while revalidating.
+ * Prices use their fresh cache when possible; returning to the tab revalidates stale data.
  */
-import { isFresh, readCache, revalidate, type Resource } from '@/lib/cache'
+import { syncResource, type Resource } from '@/lib/cache'
 import { fetchBoxCatalog, type BoxItem } from '@/lib/catalog'
 import { signature, todayInSpain } from '@/lib/format'
 import { renderBoxList, renderRouteList, renderRoutesNotice } from '@/lib/render'
-import { fetchPublicRoutes, normalizeSearch, upcomingRoutes, type PublicRoute } from '@/lib/routes'
-import { isSupabaseConfigured } from '@/lib/supabase'
+import {
+  fetchPublicRoutes,
+  normalizeSearch,
+  routeLocalities,
+  upcomingRoutes,
+  type PublicRoute,
+} from '@/lib/routes'
 
 const MINUTE = 60_000
+const HOUR = 60 * MINUTE
 const WEEK = 7 * 24 * 60 * MINUTE
 
 const routesResource: Resource<PublicRoute[]> = {
   key: 'routes',
   freshMs: 5 * MINUTE,
-  maxAgeMs: WEEK,
+  maxAgeMs: 24 * HOUR,
   load: fetchPublicRoutes,
 }
 
@@ -33,21 +38,24 @@ const FOCUS_FRESH_MS = 30_000
 /** Cache entries older than this page's build are ignored in favour of the prerendered HTML. */
 const builtAt = Number(document.documentElement.dataset.builtAt) || 0
 
-async function sync<T>(
+function sync<T>(
   resource: Resource<T>,
   freshMs: number,
   apply: (data: T) => void,
-  onError: () => void,
+  onError: (hasCache: boolean) => void,
+  options: { force?: boolean; notBefore?: number; onRevalidated?: () => void } = {},
 ) {
-  const cached = readCache(resource, builtAt)
-  if (cached) apply(cached.data)
-  if (cached && isFresh(cached, Math.min(freshMs, resource.freshMs))) return
-  try {
-    apply(await revalidate(resource))
-  } catch (error) {
-    console.warn(`[kache-landing] Datos no actualizados (${resource.key}):`, error)
-    if (!cached) onError()
-  }
+  return syncResource(resource, {
+    freshMs,
+    notBefore: options.notBefore ?? builtAt,
+    force: options.force,
+    apply,
+    onRevalidated: options.onRevalidated,
+    onError: (error, hasCache) => {
+      console.warn(`[kache-landing] Datos no actualizados (${resource.key}):`, error)
+      onError(hasCache)
+    },
+  })
 }
 
 /** Replaces the markup only when it changed, avoiding flicker and lost scroll/focus. */
@@ -66,14 +74,28 @@ function setText(selector: string, value: string) {
   }
 }
 
+function setRouteLocalities(routes: PublicRoute[]) {
+  const localities = document.querySelector<HTMLDataListElement>('#route-localities')
+  if (!localities) return
+  localities.replaceChildren(
+    ...routeLocalities(routes).map((name) => {
+      const option = document.createElement('option')
+      option.value = name
+      return option
+    }),
+  )
+}
+
 function renderRoutesSection(section: HTMLElement, routes: PublicRoute[] | null) {
   const list = section.querySelector<HTMLElement>('[data-routes-list]')
   const notice = section.querySelector<HTMLElement>('[data-routes-notice]')
   if (!list || !notice) return
 
   if (!routes) {
-    if (list.childElementCount === 0) notice.innerHTML = renderRoutesNotice('error')
+    const changed = replaceHtml(list, '')
+    replaceHtml(notice, renderRoutesNotice('error'))
     section.removeAttribute('aria-busy')
+    if (changed) section.dispatchEvent(new CustomEvent('routes:updated', { bubbles: true }))
     return
   }
 
@@ -92,7 +114,7 @@ function renderRoutesSection(section: HTMLElement, routes: PublicRoute[] | null)
   if (changed) section.dispatchEvent(new CustomEvent('routes:updated', { bubbles: true }))
 }
 
-function refreshRoutes(freshMs: number) {
+function refreshRoutes(freshMs: number, force = false) {
   const sections = [...document.querySelectorAll<HTMLElement>('[data-live-routes]')]
   if (!sections.length && !document.querySelector('[data-route-count]')) return Promise.resolve()
 
@@ -103,9 +125,29 @@ function refreshRoutes(freshMs: number) {
       const routes = upcomingRoutes(all, todayInSpain())
       for (const section of sections) renderRoutesSection(section, routes)
       setText('[data-route-count]', String(routes.length))
+      setRouteLocalities(routes)
     },
-    () => {
-      for (const section of sections) renderRoutesSection(section, null)
+    (hasCache) => {
+      for (const section of sections) {
+        if (!hasCache) renderRoutesSection(section, null)
+        const warning = section.querySelector<HTMLElement>('[data-routes-stale]')
+        if (warning) warning.hidden = !hasCache
+      }
+      if (!hasCache) {
+        setRouteLocalities([])
+        for (const count of document.querySelectorAll<HTMLElement>('[data-route-count]'))
+          count.hidden = true
+      }
+    },
+    {
+      force,
+      notBefore: 0,
+      onRevalidated: () => {
+        for (const section of sections) {
+          const warning = section.querySelector<HTMLElement>('[data-routes-stale]')
+          if (warning) warning.hidden = true
+        }
+      },
     },
   )
 }
@@ -122,7 +164,8 @@ function refreshBoxes(freshMs: number) {
       for (const list of lists) replaceHtml(list, renderBoxList(boxes))
       for (const fallback of document.querySelectorAll('[data-boxes-fallback]')) fallback.remove()
     },
-    () => {
+    (hasCache) => {
+      if (hasCache) return
       for (const fallback of document.querySelectorAll('[data-boxes-fallback]'))
         fallback.textContent =
           'No hemos podido cargar las tarifas. Escríbenos por WhatsApp y te informamos.'
@@ -130,8 +173,8 @@ function refreshBoxes(freshMs: number) {
   )
 }
 
-function syncAll(freshMs = Infinity) {
-  void refreshRoutes(freshMs)
+function syncAll(freshMs = Infinity, forceRoutes = false) {
+  void refreshRoutes(freshMs, forceRoutes)
   void refreshBoxes(freshMs)
 }
 
@@ -180,8 +223,7 @@ function setupRouteSearch() {
 
 function init() {
   setupRouteSearch()
-  if (!isSupabaseConfigured) return
-  syncAll()
+  syncAll(Infinity, true)
   const onFocus = () => syncAll(FOCUS_FRESH_MS)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') onFocus()

@@ -69,16 +69,6 @@ export async function fetchPublicRoutes(): Promise<PublicRoute[]> {
   return rows.map(mapRoute)
 }
 
-/** Build-time variant: the page still renders (and refreshes in the browser) if Supabase fails. */
-export async function fetchPublicRoutesSafe(): Promise<PublicRoute[] | null> {
-  try {
-    return await fetchPublicRoutes()
-  } catch (error) {
-    console.warn('[kache-landing] No se han podido cargar las rutas:', error)
-    return null
-  }
-}
-
 /** A map needs at least two stops with coordinates. Older cached routes may lack `points`. */
 export function routePoints(route: PublicRoute): RoutePoint[] {
   const points = route.points ?? []
@@ -86,8 +76,8 @@ export function routePoints(route: PublicRoute): RoutePoint[] {
   return points.length >= 2 ? points : []
 }
 
-/** Google Maps URLs allow origin + destination + 9 waypoints. */
-const MAPS_MAX_POINTS_PER_LINK = 11
+/** Mobile browsers support only 3 intermediate waypoints per Google Maps URL. */
+const MAPS_MAX_POINTS_PER_LINK = 5
 
 function mapsLegUrl(points: RoutePoint[]) {
   const coords = (point: RoutePoint) => `${point.lat},${point.lng}`
