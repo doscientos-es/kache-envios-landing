@@ -12,6 +12,7 @@ const config = await getViteConfig(
   {
     resolve: { alias: { '@': fileURLToPath(new URL('../src', import.meta.url)) } },
     server: { middlewareMode: true, hmr: false, ws: false },
+    optimizeDeps: { noDiscovery: true, include: [] },
     logLevel: 'error',
   },
   { configFile: false, fonts: [] },
@@ -42,13 +43,22 @@ const route = {
   ],
 }
 
-test('classic cards use live dates, all stops, route-specific booking and working map controls', () => {
+test('classic cards limit stops, include full details and show maps by default', () => {
   const html = renderRouteCard(route, { today, appearance: 'classic' })
   assert.match(html, /class="classic-route"/)
   assert.match(html, /Ruta 4, 5 y 6 de noviembre/)
   for (const stop of route.stops) assert.ok(html.includes(stop), `Missing stop: ${stop}`)
   assert.match(html, /solicitar-transporte\?ruta=route%2Fone/)
-  assert.match(html, /data-route-map-toggle aria-expanded="false"/)
+  assert.match(html, /data-route-map-toggle aria-expanded="true"/)
+  assert.match(html, /<div class="route-map[^>]* data-route-map /)
+  const beforeDetails = html.split('<details class="route-more-stops">')[0]
+  assert.equal((beforeDetails.match(/classic-route-stop-number/g) ?? []).length, 5)
+  assert.match(html, /<summary>Ver 3 paradas más<\/summary>/)
+  assert.match(html, /start="6"/)
+  const dialog = html.split('<template data-route-details>')[1]
+  assert.match(dialog, /<dialog[^>]*aria-label="Detalles de la ruta Norte"/)
+  for (const stop of [route.base, ...route.stops]) assert.ok(dialog.includes(stop))
+  assert.match(dialog, /solicitar-transporte\?ruta=route%2Fone/)
   assert.match(html, /https:\/\/www\.google\.com\/maps\/dir\//)
   assert.match(html, /href="https:\/\/wa\.me\//)
   assert.equal((html.match(/classic-route-stop-number/g) ?? []).length, 8)
@@ -235,13 +245,17 @@ test('classic rendering escapes names, stops and attributes from public data', (
   assert.ok(html.includes('&lt;svg onload='))
 })
 
-test('default and compact route cards keep the existing listing contract', () => {
+test('default and compact cards show remaining stops in a closed disclosure', () => {
   const html = renderRouteCard(route, { today, compact: true })
   assert.match(html, /data-route-card data-search=/)
   assert.ok(!html.includes('classic-route'))
-  assert.match(html, /\+1 más/)
-  assert.ok(!html.includes('>León</li>'))
+  assert.match(html, /<details class="route-more-stops"><summary>Ver 2 paradas más<\/summary>/)
+  assert.ok(!html.split('<details class="route-more-stops">')[0].includes('>León</li>'))
   assert.match(html, /solicitar-transporte\?ruta=route%2Fone/)
+  const short = renderRouteCard({ ...route, stops: route.stops.slice(0, 5) }, { today })
+  assert.ok(!short.includes('route-more-stops'))
+  const oneMore = renderRouteCard({ ...route, stops: route.stops.slice(0, 6) }, { today })
+  assert.match(oneMore, /Ver 1 parada más/)
 })
 
 test('classic lists exclude expired routes and retain their appearance when data changes', () => {

@@ -1,7 +1,6 @@
 /**
- * Route maps: each route card has a hidden panel with its stops (`data-points`). Leaflet and its
- * styles are only downloaded the first time someone opens a map. Cards are re-rendered by
- * `live-data.ts`, so clicks are handled by delegation on the document.
+ * Route maps are visible by default. Leaflet loads when a map enters the viewport.
+ * Cards are re-rendered by `live-data.ts`, so controls use event delegation.
  */
 import type { RoutePoint } from '@/lib/routes'
 
@@ -77,35 +76,71 @@ function drawRoute(L: Leaflet, panel: HTMLElement, points: RoutePoint[]) {
   return map
 }
 
-async function openMap(box: HTMLElement) {
-  const panel = box.querySelector<HTMLElement>('[data-route-map]')
-  const toggle = box.querySelector<HTMLButtonElement>('[data-route-map-toggle]')
-  const label = box.querySelector<HTMLElement>('[data-route-map-label]')
-  if (!panel || !toggle) return
+const maps = new Map<HTMLElement, ReturnType<typeof drawRoute> | null>()
 
-  const open = panel.hidden
-  panel.hidden = !open
-  toggle.setAttribute('aria-expanded', String(open))
-  if (label) label.textContent = open ? 'Ocultar mapa' : 'Ver mapa'
-  if (!open || panel.dataset.ready) return
-
-  panel.dataset.ready = 'true'
+async function initializeMap(panel: HTMLElement) {
+  if (panel.hidden || panel.dataset.loading || maps.get(panel)) return
+  panel.dataset.loading = 'true'
   panel.innerHTML =
     '<p class="grid h-full place-items-center text-sm text-muted">Cargando mapa…</p>'
   try {
     const L = await loadLeaflet()
+    if (!panel.isConnected || panel.hidden) return
     panel.innerHTML = ''
-    drawRoute(L, panel, parsePoints(panel))
+    maps.set(panel, drawRoute(L, panel, parsePoints(panel)))
   } catch (error) {
     console.warn('[kache-landing] No se ha podido cargar el mapa:', error)
-    delete panel.dataset.ready
+    leafletPromise = undefined
     panel.innerHTML =
       '<p class="grid h-full place-items-center px-6 text-center text-sm text-muted">No hemos podido cargar el mapa. Usa «Abrir en Google Maps».</p>'
+  } finally {
+    delete panel.dataset.loading
+  }
+}
+
+const observer =
+  typeof IntersectionObserver === 'undefined'
+    ? null
+    : new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) void initializeMap(entry.target as HTMLElement)
+          }
+        },
+        { rootMargin: '200px' },
+      )
+
+function registerMaps() {
+  for (const [panel, map] of maps) {
+    if (panel.isConnected) continue
+    observer?.unobserve(panel)
+    map?.remove()
+    maps.delete(panel)
+  }
+  for (const panel of document.querySelectorAll<HTMLElement>('[data-route-map]')) {
+    if (maps.has(panel)) continue
+    maps.set(panel, null)
+    if (observer) observer.observe(panel)
+    else void initializeMap(panel)
   }
 }
 
 document.addEventListener('click', (event) => {
   const toggle = (event.target as Element | null)?.closest('[data-route-map-toggle]')
   const box = toggle?.closest<HTMLElement>('[data-route-map-box]')
-  if (box) void openMap(box)
+  const panel = box?.querySelector<HTMLElement>('[data-route-map]')
+  if (!box || !panel || !toggle) return
+  panel.hidden = !panel.hidden
+  toggle.setAttribute('aria-expanded', String(!panel.hidden))
+  const label = box.querySelector<HTMLElement>('[data-route-map-label]')
+  if (label) label.textContent = panel.hidden ? 'Ver mapa' : 'Ocultar mapa'
+  if (!panel.hidden) {
+    const map = maps.get(panel)
+    if (map) map.invalidateSize()
+    else void initializeMap(panel)
+  }
 })
+
+document.addEventListener('routes:updated', registerMaps)
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', registerMaps)
+else registerMaps()

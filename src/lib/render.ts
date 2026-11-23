@@ -19,7 +19,7 @@ import {
 import { iconSvg } from './icons'
 import { googleMapsRouteLinks, normalizeSearch, routePoints, type PublicRoute } from './routes'
 
-const COMPACT_STOPS = 6
+const VISIBLE_STOPS = 5
 
 export type RouteCardOptions = {
   today: string
@@ -29,7 +29,7 @@ export type RouteCardOptions = {
 
 const routePhotos = [cat, dog, dogWalker]
 
-/** Toggle + lazy Leaflet panel (see `scripts/route-maps.ts`) and a direct Google Maps link. */
+/** Visible Leaflet panel (loaded when in view) and a direct Google Maps link. */
 function renderRouteMap(route: PublicRoute) {
   const points = routePoints(route)
   if (!points.length) return ''
@@ -56,30 +56,40 @@ function renderRouteMap(route: PublicRoute) {
         : ''
   return `<div class="flex flex-col gap-3" data-route-map-box>
       <div class="flex flex-wrap items-start gap-2">
-        <button type="button" class="${buttonClass}" data-route-map-toggle aria-expanded="false" aria-label="Ver el recorrido de la ruta ${label} en el mapa">${iconSvg('route', 'size-4')}<span data-route-map-label>Ver mapa</span></button>
+        <button type="button" class="${buttonClass}" data-route-map-toggle aria-expanded="true" aria-label="Mostrar u ocultar el mapa de la ruta ${label}">${iconSvg('route', 'size-4')}<span data-route-map-label>Ocultar mapa</span></button>
         ${mapsControl}
       </div>
-      <div class="route-map h-72 w-full overflow-hidden rounded-2xl bg-cream ring-1 ring-ink/10" hidden data-route-map data-points="${escapeHtml(JSON.stringify(points))}" role="region" aria-label="Mapa del recorrido de la ruta ${label}"></div>
+      <div class="route-map h-72 w-full overflow-hidden rounded-2xl bg-cream ring-1 ring-ink/10" data-route-map data-points="${escapeHtml(JSON.stringify(points))}" role="region" aria-label="Mapa del recorrido de la ruta ${label}"><p class="grid h-full place-items-center text-sm text-muted">Cargando mapa…</p></div>
       <p class="text-xs text-muted">El mapa une las paradas de forma orientativa; no muestra el trazado por carretera.</p>
     </div>`
 }
 
+function renderStops(stops: string[], classic: boolean) {
+  const item = (stop: string, index: number) =>
+    classic
+      ? `<li><span class="classic-route-stop-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${escapeHtml(stop)}</li>`
+      : `<li class="chip">${escapeHtml(stop)}</li>`
+  const listClass = classic ? 'classic-route-stops' : 'flex flex-wrap gap-1.5'
+  const visible = stops.slice(0, VISIBLE_STOPS).map(item).join('')
+  const remaining = stops.slice(VISIBLE_STOPS)
+  const extra = remaining.length
+    ? `<details class="route-more-stops"><summary>Ver ${remaining.length} ${remaining.length === 1 ? 'parada' : 'paradas'} más</summary><ol class="${listClass}" start="${VISIBLE_STOPS + 1}" aria-label="Más paradas de la ruta">${remaining.map((stop, index) => item(stop, index + VISIBLE_STOPS)).join('')}</ol></details>`
+    : ''
+  return `<ol class="${listClass}" aria-label="Paradas de la ruta">${visible}</ol>${extra}`
+}
+
 export function renderRouteCard(
   route: PublicRoute,
-  { today, compact = false, appearance = 'default' }: RouteCardOptions,
+  { today, appearance = 'default' }: RouteCardOptions,
   photoIndex = 0,
 ) {
   const date = dateParts(route.serviceDate)
   const days = daysBetween(today, route.serviceDate)
-  const visibleStops = compact ? route.stops.slice(0, COMPACT_STOPS) : route.stops
-  const hiddenStops = route.stops.length - visibleStops.length
   const search = normalizeSearch([route.name, route.base, ...route.stops].join(' '))
   const multiDay = route.endDate > route.serviceDate
   const daysLabel = multiDay ? routeDaysLabel(route.serviceDate, route.endDate) : date.weekday
   const message = `Hola, quiero información sobre la ruta ${route.name} del ${multiDay ? daysLabel : date.long}.`
 
-  const stops = visibleStops.map((stop) => `<li class="chip">${escapeHtml(stop)}</li>`).join('')
-  const more = hiddenStops > 0 ? `<li class="chip bg-cream">+${hiddenStops} más</li>` : ''
   const map = renderRouteMap(route)
   const bookingUrl = escapeHtml(appLinks.requestTransport(route.id))
   const contactUrl = escapeHtml(whatsappLink(message))
@@ -87,16 +97,22 @@ export function renderRouteCard(
   const departure = route.base
     ? `${itinerary.length > 1 && itinerary.at(-1) === route.base ? 'Salida y regreso' : 'Salida'}: ${escapeHtml(route.base)}`
     : 'Punto de salida pendiente de confirmar'
+  const details = `<template data-route-details><dialog class="route-dialog" aria-label="Detalles de la ruta ${escapeHtml(route.name)}">
+    <div class="route-dialog-content">
+      <button type="button" class="route-dialog-close" data-route-dialog-close autofocus aria-label="Cerrar detalles">${iconSvg('x', 'size-5')}</button>
+      <h2>Ruta ${escapeHtml(route.name)}</h2>
+      <p>${escapeHtml(routeDaysLabel(route.serviceDate, route.endDate))}${route.reverse ? ' · sentido inverso' : ''}</p>
+      <p>${departure}</p>
+      <h3>Recorrido completo</h3>
+      <ol class="route-dialog-stops">${itinerary.map((stop) => `<li>${escapeHtml(stop)}</li>`).join('')}</ol>
+      <p>Consulte precios según mascota. Los horarios y puntos exactos se confirman al cerrar cada ruta.</p>
+      <div class="route-dialog-actions"><a class="btn btn-primary" href="${bookingUrl}">Reservar plaza</a><a class="btn btn-outline" href="${contactUrl}" target="_blank" rel="noopener">Contactar por WhatsApp</a></div>
+    </div>
+  </dialog></template>`
+  const detailsButton = `<button type="button" class="route-details-button" data-route-details-open>Ver detalles de la ruta</button>`
 
   if (appearance === 'classic') {
     const photo = routePhotos[photoIndex % routePhotos.length]
-    const itineraryItems = (compact ? itinerary.slice(0, COMPACT_STOPS + 1) : itinerary)
-      .map(
-        (stop, index) =>
-          `<li><span class="classic-route-stop-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${escapeHtml(stop)}</li>`,
-      )
-      .join('')
-    const hiddenItineraryStops = Math.max(0, itinerary.length - (COMPACT_STOPS + 1))
     return `<article class="classic-route" data-route-card data-search="${escapeHtml(search)}">
       <img class="classic-route-photo" src="${escapeHtml(photo.src)}" alt="" width="${photo.width}" height="${photo.height}" loading="lazy" />
       <div class="classic-route-body">
@@ -104,16 +120,18 @@ export function renderRouteCard(
         <p class="classic-route-name">${escapeHtml(route.name)}${route.reverse ? ' · sentido inverso' : ''}</p>
         <div class="classic-route-poster">
           <p class="classic-route-poster-heading">Kache Envíos<br />Transporte de mascotas</p>
-          <ol class="classic-route-stops" aria-label="Paradas de la ruta">${itineraryItems}${compact && hiddenItineraryStops > 0 ? `<li>Y ${hiddenItineraryStops} paradas más</li>` : ''}</ol>
+          ${renderStops(itinerary, true)}
           <p class="classic-route-base">${departure}</p>
         </div>
         <div class="classic-route-map">${map}</div>
+        ${detailsButton}
         <p class="classic-route-price">Consulte precios según mascota</p>
         <footer class="classic-route-actions">
           <a class="btn btn-primary" href="${bookingUrl}">Reservar plaza</a>
           <a class="classic-route-consult" href="${contactUrl}" target="_blank" rel="noopener" aria-label="Consultar la ruta ${escapeHtml(route.name)} por WhatsApp">Contactar</a>
         </footer>
       </div>
+      ${details}
     </article>`
   }
 
@@ -131,13 +149,15 @@ export function renderRouteCard(
         <p class="mt-1 flex items-center gap-1.5 text-sm text-ink-soft">${iconSvg('mapPin', 'size-4 shrink-0 text-brand')}${departure}${route.reverse ? ' · sentido inverso' : ''}</p>
       </div>
     </header>
-    <ol class="flex flex-wrap gap-1.5" aria-label="Paradas de la ruta">${stops}${more}</ol>
+    ${renderStops(route.stops, false)}
     ${map}
+    ${detailsButton}
     <footer class="mt-auto flex flex-wrap gap-2 pt-1">
       <a class="btn btn-primary flex-1" href="${bookingUrl}">Reservar plaza ${iconSvg('arrowRight', 'size-4')}</a>
       <a class="btn btn-outline" href="${contactUrl}" target="_blank" rel="noopener" aria-label="Consultar la ruta ${escapeHtml(route.name)} por WhatsApp">${iconSvg('whatsapp', 'size-4')}<span class="sm:hidden lg:inline">Consultar</span></a>
     </footer>
   </div>
+  ${details}
 </article>`
 }
 
