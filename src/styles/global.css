@@ -58,23 +58,11 @@
   border-radius: 14px;
 }
 
-.route-more-stops summary,
 .route-details-button {
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.route-more-stops summary {
-  padding: 0.5rem 0;
-}
-
-.route-stops-disclosure > summary {
   display: inline-flex;
   min-height: 2.5rem;
   align-items: center;
+  align-self: flex-start;
   gap: 0.25rem;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
@@ -83,20 +71,11 @@
   cursor: pointer;
   font-size: 0.8rem;
   font-weight: 700;
-  list-style: none;
 }
 
-.route-stops-disclosure > summary::-webkit-details-marker {
-  display: none;
-}
-
-.route-stops-disclosure:not([open]) .route-stops-hide,
-.route-stops-disclosure[open] .route-stops-show {
-  display: none;
-}
-
-.route-stops-disclosure > ol {
-  margin-top: 0.75rem;
+.route-details-button:hover {
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
 }
 
 .route-dialog {

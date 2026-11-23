@@ -43,7 +43,7 @@ const route = {
   ],
 }
 
-test('classic cards put the always-visible map first and hide stops behind a disclosure', () => {
+test('classic cards show one stops button and put the complete itinerary in the dialog', () => {
   const html = renderRouteCard(route, { today, appearance: 'classic' })
   assert.match(html, /class="classic-route"/)
   assert.match(html, /Ruta 4, 5 y 6 de noviembre/)
@@ -57,25 +57,23 @@ test('classic cards put the always-visible map first and hide stops behind a dis
     /data-route-map-toggle|Ocultar mapa|classic-route-photo|classic-route-poster/,
   )
   assert.ok(!html.includes('Transporte de mascotas'))
-  const beforeStops = html.split('<details class="route-stops-disclosure">')[0]
-  assert.equal((beforeStops.match(/classic-route-stop-number/g) ?? []).length, 0)
-  assert.match(html, /<details class="route-stops-disclosure"><summary>.*Ver paradas/)
-  const beforeDetails = html.split('<details class="route-more-stops">')[0]
-  assert.equal((beforeDetails.match(/classic-route-stop-number/g) ?? []).length, 5)
-  assert.match(html, /<summary>Ver 3 paradas más<\/summary>/)
-  assert.match(html, /start="6"/)
-  const dialog = html.split('<template data-route-details>')[1]
-  assert.match(dialog, /<dialog[^>]*aria-label="Detalles de la ruta Norte"/)
-  assert.doesNotMatch(
-    html.split('<template data-route-details>')[0],
-    /no muestra el trazado por carretera/,
+  const [card, dialog] = html.split('<template data-route-details>')
+  assert.equal((card.match(/data-route-details-open/g) ?? []).length, 1)
+  assert.match(
+    card,
+    /data-route-details-open aria-haspopup="dialog"[^>]*>Ver paradas \(8\)<\/button>/,
   )
+  assert.doesNotMatch(card, /route-stops-disclosure|route-more-stops|<ol/)
+  assert.match(dialog, /<dialog[^>]*aria-label="Detalles de la ruta Norte"/)
+  assert.doesNotMatch(card, /no muestra el trazado por carretera/)
   assert.match(dialog, /no muestra el trazado por carretera/)
-  for (const stop of [route.base, ...route.stops]) assert.ok(dialog.includes(stop))
+  assert.deepEqual(
+    [...dialog.matchAll(/<li>([^<]+)<\/li>/g)].map((match) => match[1]),
+    [route.base, ...route.stops],
+  )
   assert.match(dialog, /solicitar-transporte\?ruta=route%2Fone/)
   assert.match(html, /https:\/\/www\.google\.com\/maps\/dir\//)
   assert.match(html, /href="https:\/\/wa\.me\//)
-  assert.equal((html.match(/classic-route-stop-number/g) ?? []).length, 8)
 })
 
 test('public routes preserve repeated stops and only show a return when it exists', () => {
@@ -90,13 +88,18 @@ test('public routes preserve repeated stops and only show a return when it exist
   })
   assert.deepEqual(mapped.itinerary, ['Córdoba', 'Madrid', 'Burgos', 'Madrid', 'Córdoba'])
   const html = renderRouteCard(mapped, { today, appearance: 'classic' })
-  assert.equal((html.match(/classic-route-stop-number/g) ?? []).length, 5)
+  const dialog = html.split('<template data-route-details>')[1]
+  assert.deepEqual(
+    [...dialog.matchAll(/<li>([^<]+)<\/li>/g)].map((match) => match[1]),
+    mapped.itinerary,
+  )
   assert.match(html, /Salida y regreso: Córdoba/)
   const oneWay = renderRouteCard({ ...mapped, itinerary: ['Córdoba', 'Madrid'] }, { today })
   assert.match(oneWay, /Salida: Córdoba/)
   assert.ok(!oneWay.includes('Salida y regreso'))
   const missing = renderRouteCard({ ...mapped, base: '', itinerary: [], stops: [] }, { today })
   assert.match(missing, /Punto de salida pendiente de confirmar/)
+  assert.match(missing, /Paradas pendientes de confirmar/)
   assert.ok(!missing.includes('Córdoba'))
 })
 
@@ -260,25 +263,22 @@ test('classic rendering escapes names, stops and attributes from public data', (
   assert.ok(html.includes('&lt;svg onload='))
 })
 
-test('default and compact cards hide all stops and limit the initial expanded list', () => {
+test('default and compact cards show stops only in the details dialog', () => {
   const html = renderRouteCard(route, { today, compact: true })
   assert.match(html, /data-route-card data-search=/)
   assert.ok(!html.includes('classic-route'))
   assert.ok(html.indexOf('data-route-map ') < html.indexOf('<header'))
   assert.ok(html.indexOf('data-route-map ') < html.indexOf('Abrir en Google Maps'))
   assert.doesNotMatch(html, /data-route-map-toggle|Ocultar mapa/)
-  assert.match(html, /<details class="route-more-stops"><summary>Ver 2 paradas más<\/summary>/)
-  assert.match(html, /<details class="route-stops-disclosure"><summary>.*Ver paradas/)
-  assert.ok(!html.split('<details class="route-stops-disclosure">')[0].includes('>Madrid</li>'))
-  assert.ok(!html.split('<details class="route-more-stops">')[0].includes('>León</li>'))
+  const [card, dialog] = html.split('<template data-route-details>')
+  assert.equal((card.match(/data-route-details-open/g) ?? []).length, 1)
+  assert.match(card, />Ver paradas \(8\)<\/button>/)
+  assert.doesNotMatch(card, /route-stops-disclosure|route-more-stops|<ol/)
+  assert.deepEqual(
+    [...dialog.matchAll(/<li>([^<]+)<\/li>/g)].map((match) => match[1]),
+    [route.base, ...route.stops],
+  )
   assert.match(html, /solicitar-transporte\?ruta=route%2Fone/)
-  const short = renderRouteCard({ ...route, stops: route.stops.slice(0, 5) }, { today })
-  assert.ok(!short.includes('route-more-stops'))
-  assert.match(short, /<details class="route-stops-disclosure">/)
-  const empty = renderRouteCard({ ...route, stops: [] }, { today })
-  assert.ok(!empty.includes('route-stops-disclosure'))
-  const oneMore = renderRouteCard({ ...route, stops: route.stops.slice(0, 6) }, { today })
-  assert.match(oneMore, /Ver 1 parada más/)
 })
 
 test('classic lists exclude expired routes and retain their appearance when data changes', () => {
