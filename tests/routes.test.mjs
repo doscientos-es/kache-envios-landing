@@ -43,7 +43,7 @@ const route = {
   ],
 }
 
-test('classic cards limit stops, include full details and show maps by default', () => {
+test('classic cards hide stops behind a disclosure and show maps by default', () => {
   const html = renderRouteCard(route, { today, appearance: 'classic' })
   assert.match(html, /class="classic-route"/)
   assert.match(html, /Ruta 4, 5 y 6 de noviembre/)
@@ -51,6 +51,9 @@ test('classic cards limit stops, include full details and show maps by default',
   assert.match(html, /solicitar-transporte\?ruta=route%2Fone/)
   assert.match(html, /data-route-map-toggle aria-expanded="true"/)
   assert.match(html, /<div class="route-map[^>]* data-route-map /)
+  const beforeStops = html.split('<details class="route-stops-disclosure">')[0]
+  assert.equal((beforeStops.match(/classic-route-stop-number/g) ?? []).length, 0)
+  assert.match(html, /<details class="route-stops-disclosure"><summary>.*Ver paradas/)
   const beforeDetails = html.split('<details class="route-more-stops">')[0]
   assert.equal((beforeDetails.match(/classic-route-stop-number/g) ?? []).length, 5)
   assert.match(html, /<summary>Ver 3 paradas más<\/summary>/)
@@ -245,15 +248,20 @@ test('classic rendering escapes names, stops and attributes from public data', (
   assert.ok(html.includes('&lt;svg onload='))
 })
 
-test('default and compact cards show remaining stops in a closed disclosure', () => {
+test('default and compact cards hide all stops and limit the initial expanded list', () => {
   const html = renderRouteCard(route, { today, compact: true })
   assert.match(html, /data-route-card data-search=/)
   assert.ok(!html.includes('classic-route'))
   assert.match(html, /<details class="route-more-stops"><summary>Ver 2 paradas más<\/summary>/)
+  assert.match(html, /<details class="route-stops-disclosure"><summary>.*Ver paradas/)
+  assert.ok(!html.split('<details class="route-stops-disclosure">')[0].includes('>Madrid</li>'))
   assert.ok(!html.split('<details class="route-more-stops">')[0].includes('>León</li>'))
   assert.match(html, /solicitar-transporte\?ruta=route%2Fone/)
   const short = renderRouteCard({ ...route, stops: route.stops.slice(0, 5) }, { today })
   assert.ok(!short.includes('route-more-stops'))
+  assert.match(short, /<details class="route-stops-disclosure">/)
+  const empty = renderRouteCard({ ...route, stops: [] }, { today })
+  assert.ok(!empty.includes('route-stops-disclosure'))
   const oneMore = renderRouteCard({ ...route, stops: route.stops.slice(0, 6) }, { today })
   assert.match(oneMore, /Ver 1 parada más/)
 })

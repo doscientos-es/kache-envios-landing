@@ -107,11 +107,15 @@ test('delegated card and map interactions survive route updates', async () => {
           this.open = true
         },
         addEventListener(type, listener) {
-          if (type === 'close') this.closeHandler = listener
+          this.handlers ??= {}
+          this.handlers[type] = listener
+        },
+        getBoundingClientRect() {
+          return { left: 100, right: 300, top: 100, bottom: 300 }
         },
         close() {
           this.open = false
-          this.closeHandler()
+          this.handlers.close()
         },
         remove() {
           this.removed = true
@@ -218,6 +222,24 @@ test('delegated card and map interactions survive route updates', async () => {
       '[data-route-card]': card,
       '[data-route-details-open]': button,
     })
+    fire('click', openButton)
+    assert.equal(currentDialog.open, true)
+    const pointer = (type, x, y, target = currentDialog) => {
+      currentDialog.handlers[type]({ target, clientX: x, clientY: y, button: 0 })
+    }
+    pointer('pointerdown', 150, 150)
+    pointer('click', 150, 150)
+    assert.equal(currentDialog.open, true)
+    pointer('pointerdown', 150, 150)
+    pointer('click', 50, 50)
+    assert.equal(currentDialog.open, true)
+    pointer('pointerdown', 50, 50)
+    pointer('click', 150, 150)
+    assert.equal(currentDialog.open, true)
+    pointer('pointerdown', 50, 50)
+    pointer('click', 50, 50)
+    assert.equal(currentDialog.removed, true)
+    assert.equal(button.focusCount, 4)
     fire('click', openButton)
     assert.equal(currentDialog.open, true)
     currentDialog.close()
