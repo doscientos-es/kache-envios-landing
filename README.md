@@ -16,3 +16,5 @@ Requiere Node.js 22 o posterior y pnpm.
 Configura `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_PUBLISHABLE_KEY` con los valores públicos del proyecto de la aplicación interna, tanto en local como en el entorno de despliegue, antes de generar la landing. Son variables públicas incluidas en el navegador: nunca uses la clave de servicio. Consulta `.env.example`.
 
 Las rutas se consultan al abrir la página. La última respuesta se muestra inmediatamente desde la caché del navegador durante un máximo de 24 horas y se actualiza en segundo plano; al volver a la pestaña se comprueba de nuevo si han pasado 30 segundos. Si la conexión falla, se advierte cuando se muestra la caché o, si no existe, se ofrece el contacto por WhatsApp.
+
+Las tarifas usan el catálogo de boxes del programa interno. Se consultan al abrir la página y cada minuto mientras la pestaña está visible; al volver a ella se comprueba de nuevo si han pasado 30 segundos. Si falla la consulta, se advierte al mostrar tarifas guardadas de hasta 24 horas; sin una caché reciente se retiran los precios y se pide contactar.

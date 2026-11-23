@@ -15,13 +15,12 @@ const listHtml = boxes ? renderBoxList(boxes) : "";
   data-signature={boxes ? signature(listHtml) : undefined}
   set:html={listHtml}
 />
-{
-  !boxes && (
-    <p class="text-sm text-muted" data-boxes-fallback>
-      Cargando tarifas actualizadas…
-    </p>
-  )
-}
+<p class="text-sm text-muted" data-boxes-fallback role="status">
+  {boxes ? "Comprobando tarifas actualizadas…" : "Cargando tarifas actualizadas…"}
+</p>
+<noscript>
+  <p class="text-sm text-muted">Activa JavaScript para comprobar las tarifas actuales o contacta con nosotros.</p>
+</noscript>
 
 <script>
   import "@/scripts/live-data";

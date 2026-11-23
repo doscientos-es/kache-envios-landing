@@ -27,6 +27,7 @@ async function request<T>(path: string, attempt = 0): Promise<T> {
   try {
     const response = await fetch(`${url}/rest/v1/${path}`, {
       headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: 'application/json' },
+      cache: 'no-store',
       signal: AbortSignal.timeout(TIMEOUT_MS),
     })
     if (!response.ok) throw new HttpError(response.status, path)

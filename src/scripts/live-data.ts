@@ -1,6 +1,5 @@
 /**
- * Loads routes on each page visit, displaying cached data immediately while revalidating.
- * Prices use their fresh cache when possible; returning to the tab revalidates stale data.
+ * Loads routes and prices on each page visit, displaying cached data while revalidating.
  */
 import { syncResource, type Resource } from '@/lib/cache'
 import { fetchBoxCatalog, type BoxItem } from '@/lib/catalog'
@@ -16,7 +15,6 @@ import {
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
-const WEEK = 7 * 24 * 60 * MINUTE
 
 const routesResource: Resource<PublicRoute[]> = {
   key: 'routes',
@@ -27,8 +25,8 @@ const routesResource: Resource<PublicRoute[]> = {
 
 const boxesResource: Resource<BoxItem[]> = {
   key: 'boxes',
-  freshMs: 30 * MINUTE,
-  maxAgeMs: WEEK,
+  freshMs: MINUTE,
+  maxAgeMs: 24 * HOUR,
   load: fetchBoxCatalog,
 }
 
@@ -152,30 +150,42 @@ function refreshRoutes(freshMs: number, force = false) {
   )
 }
 
-function refreshBoxes(freshMs: number) {
+function refreshBoxes(freshMs: number, force = false) {
   const lists = [...document.querySelectorAll<HTMLElement>('[data-live-boxes]')]
   if (!lists.length) return Promise.resolve()
+  let hasBoxes = false
 
   return sync(
     boxesResource,
     freshMs,
     (boxes) => {
-      if (!boxes.length) return
+      hasBoxes = boxes.length > 0
       for (const list of lists) replaceHtml(list, renderBoxList(boxes))
-      for (const fallback of document.querySelectorAll('[data-boxes-fallback]')) fallback.remove()
     },
     (hasCache) => {
-      if (hasCache) return
-      for (const fallback of document.querySelectorAll('[data-boxes-fallback]'))
-        fallback.textContent =
-          'No hemos podido cargar las tarifas. Escríbenos por WhatsApp y te informamos.'
+      const hasCachedBoxes = hasCache && hasBoxes
+      if (!hasCachedBoxes) for (const list of lists) replaceHtml(list, '')
+      for (const fallback of document.querySelectorAll<HTMLElement>('[data-boxes-fallback]')) {
+        fallback.hidden = false
+        fallback.textContent = hasCachedBoxes
+          ? 'No hemos podido actualizar las tarifas. Mostramos información guardada; confirma los precios antes de reservar.'
+          : 'No hemos podido cargar las tarifas. Escríbenos por WhatsApp y te informamos.'
+      }
+    },
+    {
+      force,
+      notBefore: 0,
+      onRevalidated: () => {
+        for (const fallback of document.querySelectorAll<HTMLElement>('[data-boxes-fallback]'))
+          fallback.hidden = true
+      },
     },
   )
 }
 
-function syncAll(freshMs = Infinity, forceRoutes = false) {
-  void refreshRoutes(freshMs, forceRoutes)
-  void refreshBoxes(freshMs)
+function syncAll(freshMs = Infinity, force = false) {
+  void refreshRoutes(freshMs, force)
+  void refreshBoxes(freshMs, force)
 }
 
 /** Client-side locality search for the routes page (`?q=` is kept in the URL). */
@@ -232,6 +242,11 @@ function init() {
   window.addEventListener('pageshow', (event) => {
     if (event.persisted) onFocus()
   })
+  if (document.querySelector('[data-live-boxes]')) {
+    window.setInterval(() => {
+      if (document.visibilityState === 'visible') void refreshBoxes(0)
+    }, MINUTE)
+  }
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init)
