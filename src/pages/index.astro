@@ -19,7 +19,7 @@ import {
   steps,
   testimonials,
 } from "@/config/content";
-import { site } from "@/config/site";
+import { appLinks, site } from "@/config/site";
 import Base from "@/layouts/Base.astro";
 import { fetchBoxCatalogSafe } from "@/lib/catalog";
 
@@ -48,7 +48,7 @@ const portraits = [rudol, mati, laura];
             <p class="home-tagline">Transporte de mascotas</p>
           </div>
           <div class="home-btn-group">
-            <a href={site.phone.href} class="btn btn-primary btn-hero gap-3"
+            <a href={appLinks.requestTransport()} class="btn btn-primary btn-hero gap-3"
               >Reserva tu plaza
             </a>
             <a href={site.phone.href} class="btn btn-primary btn-phone gap-3"

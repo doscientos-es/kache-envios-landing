@@ -1,7 +1,11 @@
-const appUrl = (import.meta.env.PUBLIC_APP_URL || 'https://interno.kacheenvios.com').replace(
+const configuredAppUrl = (import.meta.env.PUBLIC_APP_URL || 'https://app.kacheenvios.com').replace(
   /\/+$/,
   '',
 )
+const appUrl =
+  configuredAppUrl === 'https://interno.kacheenvios.com'
+    ? 'https://app.kacheenvios.com'
+    : configuredAppUrl
 
 export const site = {
   name: 'Kache Envíos',
@@ -39,7 +43,7 @@ export const navigation = [
   { href: '/#servicio', label: 'Servicio' },
   { href: '/#rutas', label: 'Rutas' },
   { href: '/#contacto', label: 'Contacto' },
-  { href: '/#contacto', label: 'Mi espacio' },
+  { href: appLinks.clientPortal, label: 'Mi espacio' },
 ] as const
 
 export function whatsappLink(message: string) {
