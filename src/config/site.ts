@@ -1,4 +1,11 @@
-const appUrl = (import.meta.env.PUBLIC_APP_URL || 'https://app.kacheenvios.com').replace(/\/+$/, '')
+const configuredAppUrl = (import.meta.env.PUBLIC_APP_URL || 'https://app.kacheenvios.com').replace(
+  /\/+$/,
+  '',
+)
+const appUrl =
+  configuredAppUrl === 'https://interno.kacheenvios.com'
+    ? 'https://app.kacheenvios.com'
+    : configuredAppUrl
 
 export const site = {
   name: 'Kache Envíos',

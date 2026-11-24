@@ -30,14 +30,21 @@ async function loadSite(publicAppUrl) {
 
 for (const [configuredUrl, expectedUrl] of [
   ['', 'https://app.kacheenvios.com'],
+  ['https://interno.kacheenvios.com///', 'https://app.kacheenvios.com'],
   ['https://preview.example.test///', 'https://preview.example.test'],
 ]) {
   test(`application links use ${configuredUrl || 'the default URL'}`, async () => {
     const { appLinks, navigation } = await loadSite(configuredUrl)
     assert.equal(appLinks.clientPortal, `${expectedUrl}/`)
-    assert.equal(navigation.find((item) => item.label === 'Mi espacio')?.href, appLinks.clientPortal)
+    assert.equal(
+      navigation.find((item) => item.label === 'Mi espacio')?.href,
+      appLinks.clientPortal,
+    )
     assert.equal(appLinks.requestTransport(), `${expectedUrl}/solicitar-transporte`)
-    assert.equal(appLinks.requestTransport('ruta/1'), `${expectedUrl}/solicitar-transporte?ruta=ruta%2F1`)
+    assert.equal(
+      appLinks.requestTransport('ruta/1'),
+      `${expectedUrl}/solicitar-transporte?ruta=ruta%2F1`,
+    )
     assert.equal(appLinks.upcomingRoutes, `${expectedUrl}/proximas-rutas`)
   })
 }
