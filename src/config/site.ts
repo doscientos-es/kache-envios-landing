@@ -39,7 +39,7 @@ export const navigation = [
   { href: '/#servicio', label: 'Servicio' },
   { href: '/#rutas', label: 'Rutas' },
   { href: '/#contacto', label: 'Contacto' },
-  { href: '/#contacto', label: 'Mi espacio' },
+  { href: 'https://interno.kacheenvios.com', label: 'Mi espacio' },
 ] as const
 
 export function whatsappLink(message: string) {

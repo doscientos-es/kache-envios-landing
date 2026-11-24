@@ -835,6 +835,10 @@ html {
   }
 }
 @media (max-width: 767px) {
+
+  .home-btn-group{
+    margin: 0;
+  }
     .home-hero {
     padding-block: 28vw 32px;
   }
