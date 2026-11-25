@@ -4,7 +4,7 @@
  */
 import { appLinks, whatsappLink } from '@/config/site'
 
-import { boxAudience, type BoxItem } from './catalog'
+import { boxAudience, visibleBoxes, type BoxItem } from './catalog'
 import {
   dateParts,
   daysBetween,
@@ -185,5 +185,7 @@ export function renderBoxCard(box: BoxItem, featured = false) {
 }
 
 export function renderBoxList(boxes: BoxItem[]) {
-  return boxes.map((box) => `<li>${renderBoxCard(box, box.category === 'mediano')}</li>`).join('')
+  return visibleBoxes(boxes)
+    .map((box) => `<li>${renderBoxCard(box, box.category === 'mediano')}</li>`)
+    .join('')
 }

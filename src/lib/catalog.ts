@@ -24,7 +24,10 @@ export const boxAudience: Record<string, string> = {
   pequeno: 'Gatos, cachorros y razas mini',
   mediano: 'Perros pequeños y medianos',
   grande: 'Perros grandes y razas gigantes',
-  paso_rueda: 'Box adaptado al paso de rueda para perros grandes',
+}
+
+export function visibleBoxes<T extends { category: string }>(boxes: T[]): T[] {
+  return boxes.filter((box) => box.category !== 'paso_rueda')
 }
 
 export function mapBox(row: BoxRow): BoxItem {
@@ -47,8 +50,9 @@ export async function fetchBoxCatalog(): Promise<BoxItem[]> {
     'transport_box_catalog',
     'select=category,label,amount_cents,large_amount_cents,dimensions,next_box_from_kg,sort_order&order=sort_order.asc',
   )
-  if (!Array.isArray(rows) || !rows.length) throw new Error('El catálogo de tarifas está vacío')
-  return rows.map(mapBox)
+  const visible = Array.isArray(rows) ? visibleBoxes(rows) : []
+  if (!visible.length) throw new Error('El catálogo de tarifas está vacío')
+  return visible.map(mapBox)
 }
 
 export async function fetchBoxCatalogSafe(): Promise<BoxItem[] | null> {

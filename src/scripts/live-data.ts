@@ -159,8 +159,9 @@ function refreshBoxes(freshMs: number, force = false) {
     boxesResource,
     freshMs,
     (boxes) => {
-      hasBoxes = boxes.length > 0
-      for (const list of lists) replaceHtml(list, renderBoxList(boxes))
+      const html = renderBoxList(boxes)
+      hasBoxes = html.length > 0
+      for (const list of lists) replaceHtml(list, html)
     },
     (hasCache) => {
       const hasCachedBoxes = hasCache && hasBoxes

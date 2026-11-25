@@ -34,6 +34,15 @@ function rows(price, size, largePrice = null) {
       next_box_from_kg: 13,
       sort_order: 2,
     },
+    {
+      category: 'paso_rueda',
+      label: 'Paso de rueda',
+      amount_cents: 15000,
+      large_amount_cents: null,
+      dimensions: 'Medida del paso de rueda',
+      next_box_from_kg: 40,
+      sort_order: 4,
+    },
   ]
 }
 
@@ -71,6 +80,14 @@ test('prices refresh on visits and visible tabs, and warn on failures', async ()
       largeAmountCents: null,
       details: ['Medida guardada'],
       maxWeightKg: 13,
+    },
+    {
+      category: 'paso_rueda',
+      label: 'Paso de rueda guardado',
+      amountCents: 15000,
+      largeAmountCents: null,
+      details: [],
+      maxWeightKg: 40,
     },
   ]
   const cacheKey = 'kache-landing:v1:boxes'
@@ -117,13 +134,18 @@ test('prices refresh on visits and visible tabs, and warn on failures', async ()
       return Promise.resolve(nextResponse)
     }
     console.warn = () => {}
+    const { renderBoxList } = await server.ssrLoadModule('/src/lib/render.ts')
+    assert.match(renderBoxList(cached), /Box guardado/)
+    assert.doesNotMatch(renderBoxList(cached), /Paso de rueda/)
     await server.ssrLoadModule('/src/scripts/live-data.ts')
     assert.equal(calls, 1)
     assert.match(list.innerHTML, /Box guardado/)
+    assert.doesNotMatch(list.innerHTML, /Paso de rueda/)
     resolveFirst(new Response(JSON.stringify(rows(12000, 'Medida nueva', 18000)), { status: 200 }))
     await until(() => list.innerHTML.includes('Medida nueva') && status.hidden)
     assert.match(list.innerHTML, /120/)
     assert.match(list.innerHTML, /180/)
+    assert.doesNotMatch(list.innerHTML, /Paso de rueda/)
 
     document.visibilityState = 'hidden'
     interval()
@@ -143,6 +165,13 @@ test('prices refresh on visits and visible tabs, and warn on failures', async ()
     assert.match(list.innerHTML, /145/)
 
     nextResponse = new Response('[]', { status: 200 })
+    status.hidden = true
+    interval()
+    await until(() => !status.hidden)
+    assert.match(list.innerHTML, /145/)
+    assert.match(status.textContent, /información guardada/)
+
+    nextResponse = new Response(JSON.stringify(rows(12000, 'Medida').slice(1)), { status: 200 })
     status.hidden = true
     interval()
     await until(() => !status.hidden)
